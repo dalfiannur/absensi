@@ -5,19 +5,22 @@ import LoginRoute from './login';
 import Dashboard from 'ui/components/dashboard';
 import UserRoute from './user';
 import UserRoleRoute from './user-role';
-import history from 'ui/components/history';
-
+import history from 'utils/history';
+import { Provider } from 'react-redux';
+import { store } from 'store'
 
 const Routes = () => {
   return (
-    <Router history={history}>
-      <Switch>
-        <Route path='/' component={PresenceRoute} exact />
-        {/* <Route path='/login' component={LoginRoute} exact /> */}
-        {/* <Dashboard path='/admin/user' component={UserRoute} exact /> */}
-        {/* <Dashboard path='/admin/user-role' component={UserRoleRoute} exact /> */}
-      </Switch>
-    </Router>
+    <Provider store={store}>
+      <Router history={history}>
+        <Switch>
+          <Route path='/' component={PresenceRoute} exact />
+          <Route path='/login' component={LoginRoute} exact />
+          {/* <Dashboard path='/admin/user' component={UserRoute} exact /> */}
+          {/* <Dashboard path='/admin/user-role' component={UserRoleRoute} exact /> */}
+        </Switch>
+      </Router>
+    </Provider>
   )
 }
 
