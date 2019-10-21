@@ -46,9 +46,16 @@ type Props = {
 const Presence: React.FC<Props> = (props) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [code, setCode] = useState('');
 
-  const handleTextField = (e: any) => {
+  const handleTextField = (value: string) => {
     setOpen(true);
+    setCode(value);
+    setTimeout(() => {
+      Promise.resolve(setCode('')).then(() => {
+        setOpen(false);
+      });
+    }, 3000);
   }
 
   return (
@@ -56,7 +63,12 @@ const Presence: React.FC<Props> = (props) => {
       <div>
         <img className={classes.Logo} src={Logo} />
         <h1 className={classes.Title}>ABSENSI PESERTA MTGA</h1>
-        <TextField className={classes.TextField} onChange={(e) => handleTextField(e.target.value)} />
+        <TextField
+          autoFocus
+          value={code}
+          className={classes.TextField}
+          onChange={(e) => handleTextField(e.target.value)}
+        />
       </div>
       <Dialog
         open={open}
