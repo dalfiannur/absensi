@@ -1,9 +1,13 @@
 import * as React from 'react'
-import { useRef, useState, useEffect } from 'react';
+import { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Dialog, DialogContent, DialogTitle, DialogActions, Grid, Button, Table, TableBody } from '@material-ui/core';
+import { TextField, Dialog, DialogContent, Grid } from '@material-ui/core';
 import Logo from '../../../logo.png';
-import User from '../../../user.jpg';
+import { Dispatch } from 'redux';
+import { setNIK, setUser } from 'store/actions/presence';
+import { PresenceState } from 'store/reducers/presence'
+import { connect } from 'react-redux';
+import { User } from 'types/entity';
 
 const useStyles = makeStyles(theme => ({
   TextField: {
@@ -47,15 +51,27 @@ const useStyles = makeStyles(theme => ({
 }));
 
 type Props = {
-
+  Presence: PresenceState,
+  setNIK: (nik: string) => void,
+  setUser: (user: User) => void
 }
 
 const Presence: React.FC<Props> = (props) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
-  const handleTextField = (e: any) => {
+  const handleTextField = async (nik: string) => {
     setOpen(true);
+    fetch('https://localhost:8000/user/' + nik)
+      .then((response) => response.json())
+      .then((data) => {
+        props.setUser(data)
+        setTimeout(() => {
+          Promise.resolve(props.setNIK('')).then(() => {
+            setOpen(false);
+          });
+        }, 3000);
+      })
   }
 
   return (
@@ -63,7 +79,12 @@ const Presence: React.FC<Props> = (props) => {
       <div>
         <img className={classes.Logo} src={Logo} />
         <h1 className={classes.Title}>ABSENSI PESERTA MTGA</h1>
-        <TextField className={classes.TextField} onChange={(e) => handleTextField(e.target.value)} />
+        <TextField
+          autoFocus
+          value={props.Presence.nik}
+          className={classes.TextField}
+          onChange={(e) => handleTextField(e.target.value)}
+        />
       </div>
       <Dialog
         open={open}
@@ -93,16 +114,15 @@ const Presence: React.FC<Props> = (props) => {
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)} color="primary">
-            Disagree
-          </Button>
-          <Button onClick={() => setOpen(false)} color="primary">
-            Agree
-          </Button>
-        </DialogActions>
       </Dialog>
     </React.Fragment>
   )
 }
-export default Presence
+
+const mapState = (state: any) => state
+const mapDispatch = (dispatch: Dispatch) => ({
+  setNIK: (nik: string) => dispatch(setNIK(nik)),
+  setUser: (user: User) => dispatch(setUser(user))
+})
+
+export default connect(mapState, mapDispatch)(Presence)
