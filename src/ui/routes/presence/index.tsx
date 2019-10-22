@@ -8,6 +8,7 @@ import { setNIK, setUser } from 'store/actions/presence';
 import { PresenceState } from 'store/reducers/presence'
 import { connect } from 'react-redux';
 import { User } from 'types/entity';
+import UserImage from '../../../user.jpg';
 
 const useStyles = makeStyles(theme => ({
   TextField: {
@@ -98,7 +99,7 @@ const Presence: React.FC<Props> = (props) => {
           <Grid container spacing={2}>
          
             <Grid item md={5}>
-              <img className={classes.ProfilePicture} src={User} />
+              <img className={classes.ProfilePicture} src={UserImage} />
             </Grid>
             <Grid item md={7}>
               <Grid container>
