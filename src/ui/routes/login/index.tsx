@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, TextField, Button } from '@material-ui/core';
-import Logo from '../../../logo.png';
-import BackgroundImage from '../../../assets/background-login.jpg';
-import BackgroundImage2 from '../../../assets/background-login-2.jpg';
 import { connect } from 'react-redux';
 import { setUsername, setPassword } from 'store/actions/auth';
 import { Dispatch } from 'redux';
 import { AuthState } from 'store/reducers/auth';
+import history from 'utils/history'
+import Logo from '../../../logo.png';
+import BackgroundImage from '../../../assets/background-login.jpg';
+import BackgroundImage2 from '../../../assets/background-login-2.jpg';
 
 const useStyle = makeStyles(theme => ({
   Container: {
@@ -54,7 +55,21 @@ const LoginRoute: React.FC<LoginProps> = (props) => {
   const classes = useStyle();
 
   const handleLogin = () => {
-    console.log(props.Auth)
+    fetch(`${process.env.REACT_APP_API}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: props.Auth.username,
+        password: props.Auth.password
+      })
+    })
+      .then(result => result.json())
+      .then(data => {
+        localStorage.setItem('access_token', data.access_token)
+        history.push('/admin')
+      })
   }
 
   return (

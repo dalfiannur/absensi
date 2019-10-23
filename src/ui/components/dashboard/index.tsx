@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Route, RouteProps } from 'react-router';
 import {
   CssBaseline,
@@ -26,7 +26,7 @@ import {
   Accessibility as AccessibilityIcon
 } from '@material-ui/icons'
 import { styles } from './styles';
-import history from '../history'
+import history from 'utils/history'
 
 interface DashboardProps extends RouteProps {
 
@@ -37,6 +37,12 @@ const Dashboard: React.SFC<DashboardProps> = (props) => {
   const theme = useTheme();
 
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem('access_token')) {
+      history.push('/login')
+    }
+  })
 
   const handleLink = (routePath: string) => {
     history.push(routePath);

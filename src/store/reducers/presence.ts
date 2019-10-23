@@ -11,7 +11,8 @@ const initialState: PresenceState = {
   nik: '',
   user: {
     nik: '',
-    name: ''
+    name: '',
+    improvement: ''
   }
 };
 
