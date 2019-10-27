@@ -23,7 +23,8 @@ import {
   Inbox as InboxIcon,
   Mail as MailIcon,
   People as PeopleIcon,
-  Accessibility as AccessibilityIcon
+  Accessibility as AccessibilityIcon,
+  Home as HomeIcon
 } from '@material-ui/icons'
 import { styles } from './styles';
 import history from 'utils/history'
@@ -94,6 +95,24 @@ const Dashboard: React.SFC<DashboardProps> = (props) => {
         </div>
         <Divider />
         <List>
+          <ListItem button onClick={() => handleLink('/admin')} >
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
+            <ListItemText primary={'Dashboard'} />
+          </ListItem>
+          <ListItem button onClick={() => handleLink('/admin/departement')} >
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary={'Departement'} />
+          </ListItem>
+          <ListItem button onClick={() => handleLink('/admin/presence-type')} >
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary={'Presence Type'} />
+          </ListItem>
           <ListItem button onClick={() => handleLink('/admin/user')} >
             <ListItemIcon>
               <PeopleIcon />

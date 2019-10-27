@@ -7,13 +7,13 @@ import {
   Print as PrintIcon,
   GetApp as DownloadIcon
 } from '@material-ui/icons'
-import { UserState } from 'store/reducers/user'
 import Barcode from 'jsbarcode'
 import * as QR from 'qrcode'
 import { createCanvas } from 'canvas'
-import { handlePrintDialog } from 'store/actions/user'
 import ReactToPrint from 'react-to-print'
 import SaveFile from 'save-file'
+import { UserState } from 'store/user/types'
+import { AppState } from 'store'
 
 const useStyle = makeStyles(theme => ({
   Barcode: {
@@ -33,9 +33,10 @@ const useStyle = makeStyles(theme => ({
   }
 }))
 
-type PrintDialogProps = {
-  User?: UserState;
-  handlePrintDialog?: () => void
+interface PrintDialogProps {
+  open: boolean
+  User?: UserState
+  onClose: () => void
 }
 
 const createBarcode = (data: string) => {
@@ -55,7 +56,7 @@ const createQR = (data: string) => {
   return qr;
 }
 
-const PrintModal: React.FC<PrintDialogProps> = (props) => {
+const PrintModal = (props: PrintDialogProps) => {
   const classes = useStyle();
 
   const [selectCode, setSelectCode] = React.useState('barcode');
@@ -83,9 +84,9 @@ const PrintModal: React.FC<PrintDialogProps> = (props) => {
 
   return (
     <Dialog
-      open={props.User!.openPrintDialog}
+      open={props.open}
       keepMounted
-      onClose={props.handlePrintDialog}
+      onClose={props.onClose}
       fullWidth
       maxWidth='xs'
     >
@@ -114,8 +115,16 @@ const PrintModal: React.FC<PrintDialogProps> = (props) => {
           <Grid item md={12}>
             {
               selectCode === 'barcode'
-                ? (<img src={createBarcode(props.User!.user.nik || 'dummy')} className={classes.Barcode} ref={barcodeRef} />)
-                : (<img src={createQR(props.User!.user.nik || 'dummy')} className={classes.QR} ref={qrRef} />)
+                ? (<img
+                  alt='Barcode'
+                  ref={barcodeRef}
+                  className={classes.Barcode}
+                  src={createBarcode(props.User!.user.nik || 'dummy')} />)
+                : (<img 
+                  alt='QR'
+                  ref={qrRef}
+                  className={classes.QR}
+                  src={createQR(props.User!.user.nik || 'dummy')} />)
             }
           </Grid>
         </Grid>
@@ -124,9 +133,9 @@ const PrintModal: React.FC<PrintDialogProps> = (props) => {
   )
 }
 
-const mapState = (state: any) => state
-const mapDispatch = (dispatch: Dispatch) => ({
-  handlePrintDialog: () => dispatch(handlePrintDialog())
+const mapState = (state: AppState) => ({
+  User: state.User
 })
+const mapDispatch = (dispatch: Dispatch) => ({})
 
 export default connect(mapState, mapDispatch)(PrintModal)

@@ -1,45 +1,48 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react'
 import { Dispatch } from 'redux';
-import { setUsers, handlePrintDialog, setUser } from 'store/actions/user';
-import { User } from 'types/entity';
 import { connect } from 'react-redux';
-import { UserState } from 'store/reducers/user';
 import { Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from '@material-ui/core';
 import {
+  Add as AddIcon,
   Print as PrintIcon,
   ViewList as ViewListIcon
 } from '@material-ui/icons'
 import PrintDialog from './components/PrintDialog'
+import { User, UserState } from 'store/user/types';
+import { setUser, setUsers } from 'store/user/actions';
+import { AppState } from 'store';
+import FormAdd from './FormAdd';
 
-type UserProps = {
-  User: UserState,
-  setUser: (user: User) => void,
-  setUsers: (users: User[]) => void,
-  handlePrintDialog: () => void
+interface UserRouteProps {
+  User: UserState
+  setUser: (user: User) => void
+  setUsers: (users: User[]) => void
 }
 
-const UserRoute: React.FC<UserProps> = (props) => {
+const UserRoute = (props: UserRouteProps) => {
+  const [openPrintDialog, setOpenPrintDialog] = useState(false)
+  const [openFormAdd, setOpenFormAdd] = useState(false)
 
-  React.useEffect(() => {
-    loadData()
-  })
-
-  const loadData = () => {
+  useEffect(() => {
     fetch(`${process.env.REACT_APP_API}/users`)
       .then(response => response.json())
       .then(data => {
         props.setUsers(data.items)
       })
-  }
+  }, [])
 
   const handlePrintDialog = (user: User) => {
-    props.setUser(user);
-    props.handlePrintDialog();
+    props.setUser(user)
+    setOpenPrintDialog(true)
   }
 
   return (
     <React.Fragment>
       <Paper>
+        <IconButton onClick={() => setOpenFormAdd(true)}>
+          <AddIcon />
+        </IconButton>
         <Table>
           <TableHead>
             <TableRow>
@@ -88,16 +91,20 @@ const UserRoute: React.FC<UserProps> = (props) => {
           </TableBody>
         </Table>
       </Paper>
-      <PrintDialog />
+      <PrintDialog open={openPrintDialog} onClose={() => setOpenPrintDialog(false)} />
+      <FormAdd
+        open={openFormAdd}
+        onClose={() => setOpenFormAdd(false)}/>
     </React.Fragment>
   )
 }
 
-const mapState = (state: any) => state
+const mapState = (state: AppState) => ({
+  User: state.User
+})
 const mapDispatch = (dispatch: Dispatch) => ({
   setUser: (user: User) => dispatch(setUser(user)),
-  setUsers: (users: User[]) => dispatch(setUsers(users)),
-  handlePrintDialog: () => dispatch(handlePrintDialog())
+  setUsers: (users: User[]) => dispatch(setUsers(users))
 })
 
 export default connect(mapState, mapDispatch)(UserRoute);

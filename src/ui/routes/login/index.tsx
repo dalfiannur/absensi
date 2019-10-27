@@ -1,14 +1,10 @@
-import * as React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { Grid, TextField, Button } from '@material-ui/core';
-import { connect } from 'react-redux';
-import { setUsername, setPassword } from 'store/actions/auth';
-import { Dispatch } from 'redux';
-import { AuthState } from 'store/reducers/auth';
+import * as React from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import { Grid, TextField, Button } from '@material-ui/core'
 import history from 'utils/history'
-import Logo from '../../../logo.png';
-import BackgroundImage from '../../../assets/background-login.jpg';
-import BackgroundImage2 from '../../../assets/background-login-2.jpg';
+import Logo from '../../../logo.png'
+import BackgroundImage from '../../../assets/background-login.jpg'
+import BackgroundImage2 from '../../../assets/background-login-2.jpg'
 
 const useStyle = makeStyles(theme => ({
   Container: {
@@ -43,16 +39,13 @@ const useStyle = makeStyles(theme => ({
     marginRight: 'auto',
     display: 'block'
   }
-}));
+}))
 
-type LoginProps = {
-  Auth: AuthState,
-  setUsername: (username: string) => void,
-  setPassword: (password: string) => void
-}
-
-const LoginRoute: React.FC<LoginProps> = (props) => {
+const LoginRoute = () => {
   const classes = useStyle();
+
+  const [username, setUsername] = React.useState('')
+  const [password, setPassword] = React.useState('')
 
   const handleLogin = () => {
     fetch(`${process.env.REACT_APP_API}/auth/login`, {
@@ -60,10 +53,7 @@ const LoginRoute: React.FC<LoginProps> = (props) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        username: props.Auth.username,
-        password: props.Auth.password
-      })
+      body: JSON.stringify({ username, password })
     })
       .then(result => result.json())
       .then(data => {
@@ -85,7 +75,7 @@ const LoginRoute: React.FC<LoginProps> = (props) => {
             margin="dense"
             variant="outlined"
             fullWidth
-            onChange={(e) => props.setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value)}
           />
           <TextField
             id="input-password"
@@ -94,7 +84,7 @@ const LoginRoute: React.FC<LoginProps> = (props) => {
             margin="dense"
             variant="outlined"
             fullWidth
-            onChange={e => props.setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
           />
           <Button
             color='primary'
@@ -110,10 +100,4 @@ const LoginRoute: React.FC<LoginProps> = (props) => {
   )
 }
 
-const mapState = (state: any) => state
-const mapDispatch = (dispatch: Dispatch) => ({
-  setUsername: (username: string) => dispatch(setUsername(username)),
-  setPassword: (password: string) => dispatch(setPassword(password))
-})
-
-export default connect(mapState, mapDispatch)(LoginRoute);
+export default LoginRoute;
