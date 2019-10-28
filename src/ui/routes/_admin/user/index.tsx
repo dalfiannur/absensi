@@ -9,7 +9,7 @@ import {
   ViewList as ViewListIcon,
   Publish as PublishIcon
 } from '@material-ui/icons'
-import PrintDialog from './components/PrintDialog'
+import PrintDialog from './PrintDialog'
 import { User, UserState } from 'store/user/types';
 import { setUser, setUsers } from 'store/user/actions';
 import { AppState } from 'store';
@@ -26,7 +26,6 @@ const UserRoute = (props: UserRouteProps) => {
   const [openPrintDialog, setOpenPrintDialog] = useState(false)
   const [openImportDialog, setOpenImportDialog] = useState(false)
   const [openFormAdd, setOpenFormAdd] = useState(false)
-  const [files, setFiles] = useState([])
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API}/users`)

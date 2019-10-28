@@ -126,7 +126,7 @@ const PresenceRoute = (props: PresenceProps) => {
               setUser(data)
               setTimeout(() => {
                 fetch(`${process.env.REACT_APP_API}/presence`, {
-                  method: 'POSY',
+                  method: 'POST',
                   headers: {
                     Authorization: `Bearer ${localStorage.getItem('access_token')}`,
                     'Content-Type': 'application/json'
