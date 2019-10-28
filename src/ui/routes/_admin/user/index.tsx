@@ -2,17 +2,19 @@ import * as React from 'react';
 import { useEffect, useState } from 'react'
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from '@material-ui/core';
+import { Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton, Button } from '@material-ui/core';
 import {
   Add as AddIcon,
   Print as PrintIcon,
-  ViewList as ViewListIcon
+  ViewList as ViewListIcon,
+  Publish as PublishIcon
 } from '@material-ui/icons'
 import PrintDialog from './components/PrintDialog'
 import { User, UserState } from 'store/user/types';
 import { setUser, setUsers } from 'store/user/actions';
 import { AppState } from 'store';
 import FormAdd from './FormAdd';
+import { DropzoneDialog } from 'material-ui-dropzone'
 
 interface UserRouteProps {
   User: UserState
@@ -22,7 +24,9 @@ interface UserRouteProps {
 
 const UserRoute = (props: UserRouteProps) => {
   const [openPrintDialog, setOpenPrintDialog] = useState(false)
+  const [openImportDialog, setOpenImportDialog] = useState(false)
   const [openFormAdd, setOpenFormAdd] = useState(false)
+  const [files, setFiles] = useState([])
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API}/users`)
@@ -30,11 +34,26 @@ const UserRoute = (props: UserRouteProps) => {
       .then(data => {
         props.setUsers(data.items)
       })
-  }, [])
+  }, [props.setUsers])
 
   const handlePrintDialog = (user: User) => {
     props.setUser(user)
     setOpenPrintDialog(true)
+  }
+
+  const importUsersAction = (files: File[]) => {
+    const formData = new FormData()
+    formData.append('file', files[0])
+    fetch(`${process.env.REACT_APP_API}/import-users`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`
+      },
+      body: formData
+    })
+      .then(() => {
+        setOpenImportDialog(false)
+      })
   }
 
   return (
@@ -42,6 +61,9 @@ const UserRoute = (props: UserRouteProps) => {
       <Paper>
         <IconButton onClick={() => setOpenFormAdd(true)}>
           <AddIcon />
+        </IconButton>
+        <IconButton onClick={() => setOpenImportDialog(true)}>
+          <PublishIcon />
         </IconButton>
         <Table>
           <TableHead>
@@ -95,6 +117,16 @@ const UserRoute = (props: UserRouteProps) => {
       <FormAdd
         open={openFormAdd}
         onClose={() => setOpenFormAdd(false)}/>
+      <DropzoneDialog
+        open={openImportDialog}
+        onSave={importUsersAction}
+        showPreviews={true}
+        maxFileSize={5000000}
+        acceptedFiles={[
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ]}
+        onClose={() => setOpenImportDialog(false)} />
     </React.Fragment>
   )
 }
