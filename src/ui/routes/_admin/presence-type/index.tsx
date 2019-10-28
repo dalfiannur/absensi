@@ -70,7 +70,7 @@ const PresenceTypeRoute = (props: PresenceTypeRouteProps) => {
           </TableHead>
           <TableBody>
             {
-              props.PresenceType!.presenceTypes.map(item => (
+              props.PresenceType!.presenceTypes.map((item, index) => (
                 <TableRow key={`row-${item.id}`}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{item.code}</TableCell>
