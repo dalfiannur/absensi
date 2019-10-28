@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as _ from 'lodash'
 import { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Dialog, DialogContent, Grid, DialogTitle } from '@material-ui/core';
@@ -76,7 +77,7 @@ const PresenceRoute = (props: PresenceProps) => {
   const [open, setOpen] = useState(false)
   const [openUserNotFound, setOpenUserNotFound] = useState(false)
   const [NIK, setNIK] = useState('')
-  const [presenceTypeId, setPresenceTypeId] = useState(0)
+  const [presenceTypeId, setPresenceTypeId] = useState(1)
   const [user, setUser] = useState<User>({
     nik: '',
     name: '',
@@ -93,7 +94,7 @@ const PresenceRoute = (props: PresenceProps) => {
     }
   }, [props.setPresenceTypes])
 
-  const postPresence = () => {
+  const postPresence = (userId: number) => {
     fetch(`${process.env.REACT_APP_API}/presence`, {
       method: 'POST',
       headers: {
@@ -101,8 +102,8 @@ const PresenceRoute = (props: PresenceProps) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        userId: user.id,
-        typeId: presenceTypeId
+        userId,
+        typeId: _.toInteger(presenceTypeId)
       })
     })
   }
@@ -124,18 +125,10 @@ const PresenceRoute = (props: PresenceProps) => {
             setOpen(true);
             res.json().then((data) => {
               setUser(data)
+              postPresence(_.toInteger(data.id))
               setTimeout(() => {
-                fetch(`${process.env.REACT_APP_API}/presence`, {
-                  method: 'POST',
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    userId: user.id,
-                    typeId: 1
-                  })
-                })
+                setNIK('')
+                setOpen(false)
               }, 5000)
             })
           }
