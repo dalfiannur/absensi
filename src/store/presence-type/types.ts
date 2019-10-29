@@ -5,6 +5,8 @@ export interface PresenceType {
   id?: number
   code: string
   name: string
+  startTime: string
+  endTime: string
   createdAt?: string | Date
   updatedAt?: string | Date
 }

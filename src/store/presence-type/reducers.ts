@@ -5,6 +5,8 @@ const initialState: PresenceTypeState = {
     id: 0,
     code: '',
     name: '',
+    startTime: '00:00',
+    endTime: '00:00',
     createdAt: '',
     updatedAt: ''
   },

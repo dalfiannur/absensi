@@ -1,5 +1,6 @@
 import * as React from 'react'
 import * as _ from 'lodash'
+import moment from 'moment'
 import { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Dialog, DialogContent, Grid, DialogTitle } from '@material-ui/core';
@@ -77,7 +78,6 @@ const PresenceRoute = (props: PresenceProps) => {
   const [open, setOpen] = useState(false)
   const [openUserNotFound, setOpenUserNotFound] = useState(false)
   const [NIK, setNIK] = useState('')
-  const [presenceTypeId, setPresenceTypeId] = useState(1)
   const [user, setUser] = useState<User>({
     nik: '',
     name: '',
@@ -89,12 +89,19 @@ const PresenceRoute = (props: PresenceProps) => {
       fetch(`${process.env.REACT_APP_API}/presence-types`)
         .then(res => res.json())
         .then(data => {
-          props.setPresenceTypes(data)
+          props.setPresenceTypes(data.items)
         })
     }
   }, [props.setPresenceTypes])
 
   const postPresence = (userId: number) => {
+    const date = moment(new Date())
+    const type = props.PresenceType.presenceTypes.filter(item => {
+      const start = moment(item.startTime, 'HH:mm')
+      const end = moment(item.endTime, 'HH:mm')
+      if (start.isSameOrBefore(date) && end.isAfter(date)) return item
+    })
+    
     fetch(`${process.env.REACT_APP_API}/presence`, {
       method: 'POST',
       headers: {
@@ -103,7 +110,7 @@ const PresenceRoute = (props: PresenceProps) => {
       },
       body: JSON.stringify({
         userId,
-        typeId: _.toInteger(presenceTypeId)
+        typeId: _.toInteger(type[0].id)
       })
     })
   }
