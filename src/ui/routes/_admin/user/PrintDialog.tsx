@@ -68,13 +68,13 @@ const PrintModal = (props: PrintDialogProps) => {
     const name = props.User!.user.name
 
     if (selectCode === 'barcode') {
-      const canvas = createCanvas(400, 200, 'pdf');
+      const canvas = createCanvas(400, 200, 'svg');
       Barcode(canvas, nik, {
         format: 'CODE39',
         width: 1
       });
 
-      SaveFile(canvas.toDataURL(), `barcode-${name}.pdf`);
+      SaveFile(canvas.toDataURL('image/png'), `barcode-${name}.png`);
     } else {
       QR.toDataURL(nik, (err, data) => {
         SaveFile(data, `QR-${name}.png`)
