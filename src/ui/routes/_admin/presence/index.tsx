@@ -2,25 +2,17 @@ import * as React from 'react';
 import { useEffect, useState } from 'react'
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from '@material-ui/core';
-import {
-  Add as AddIcon,
-  Print as PrintIcon,
-  ViewList as ViewListIcon
-} from '@material-ui/icons'
-import PrintDialog from './components/PrintDialog'
-import { User, UserState } from 'store/user/types';
-import { setUser, setUsers } from 'store/user/actions';
+import { Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@material-ui/core';
 import { AppState } from 'store';
-import FormAdd from './FormAdd';
+import { PresenceState, Presence } from 'store/presence/types';
+import { setPresence, setPresences } from 'store/presence/actions';
 
-interface UserRouteProps {
-  User: UserState
-  setUser: (user: User) => void
-  setUsers: (users: User[]) => void
+interface PresenceRouteProps {
+  Presence: PresenceState
+  setPresences: (presences: Presence[]) => void
 }
 
-const UserRoute = (props: UserRouteProps) => {
+const PresenceRoute = (props: PresenceRouteProps) => {
   const [openPrintDialog, setOpenPrintDialog] = useState(false)
   const [openFormAdd, setOpenFormAdd] = useState(false)
 
@@ -28,66 +20,45 @@ const UserRoute = (props: UserRouteProps) => {
     loadData()
   }, [])
 
-  const loadData = () => {
-    fetch(`${process.env.REACT_APP_API}/users`)
+  const loadData = (limit = 20, skip = 0) => {
+    fetch(`${process.env.REACT_APP_API}/presences?limit=${limit}&skip=${skip}`)
       .then(response => response.json())
       .then(data => {
-        props.setUsers(data.items)
+        props.setPresences(data.items)
       })
-  }
-
-  const handlePrintDialog = (user: User) => {
-    props.setUser(user)
-    setOpenPrintDialog(true)
   }
 
   return (
     <React.Fragment>
       <Paper>
-        <IconButton onClick={() => setOpenFormAdd(true)}>
-          <AddIcon />
-        </IconButton>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>#</TableCell>
               <TableCell>NIK</TableCell>
               <TableCell>Name</TableCell>
-              <TableCell>Improvement</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Created At</TableCell>
-              <TableCell></TableCell>
+              <TableCell>Departement</TableCell>
+              <TableCell>Present At</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {
-              props.User.users.map((user, index) => (
+              props.Presence.presences!.map((item, index) => (
                 <TableRow>
                   <TableCell>
                     {index + 1}
                   </TableCell>
                   <TableCell>
-                    {user.nik}
+                    {item.user!.nik}
                   </TableCell>
                   <TableCell>
-                    {user.name}
+                    {item.user!.name}
                   </TableCell>
                   <TableCell>
-                    {user.improvement}
+                    {item.user!.departement!.name}
                   </TableCell>
                   <TableCell>
-                    {user.role!.name}
-                  </TableCell>
-                  <TableCell>
-                    {user.createdAt}
-                  </TableCell>
-                  <TableCell>
-                    <IconButton onClick={() => handlePrintDialog(user)}>
-                      <PrintIcon />
-                    </IconButton>
-                    <IconButton >
-                      <ViewListIcon />
-                    </IconButton>
+                    {item.createdAt}
                   </TableCell>
                 </TableRow>
               ))
@@ -95,20 +66,16 @@ const UserRoute = (props: UserRouteProps) => {
           </TableBody>
         </Table>
       </Paper>
-      <PrintDialog open={openPrintDialog} onClose={() => setOpenPrintDialog(false)} />
-      <FormAdd
-        open={openFormAdd}
-        onClose={() => setOpenFormAdd(false)}/>
     </React.Fragment>
   )
 }
 
 const mapState = (state: AppState) => ({
-  User: state.User
+  Presence: state.Presence
 })
 const mapDispatch = (dispatch: Dispatch) => ({
-  setUser: (user: User) => dispatch(setUser(user)),
-  setUsers: (users: User[]) => dispatch(setUsers(users))
+  setPresence: (presence: Presence) => dispatch(setPresence(presence)),
+  setPresences: (presences: Presence[]) => dispatch(setPresences(presences))
 })
 
-export default connect(mapState, mapDispatch)(UserRoute);
+export default connect(mapState, mapDispatch)(PresenceRoute);

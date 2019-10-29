@@ -101,6 +101,12 @@ const Dashboard: React.SFC<DashboardProps> = (props) => {
             </ListItemIcon>
             <ListItemText primary={'Dashboard'} />
           </ListItem>
+          <ListItem button onClick={() => handleLink('/admin/presence')} >
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary={'Presence'} />
+          </ListItem>
           <ListItem button onClick={() => handleLink('/admin/departement')} >
             <ListItemIcon>
               <PeopleIcon />
