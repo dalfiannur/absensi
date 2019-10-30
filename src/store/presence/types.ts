@@ -1,5 +1,6 @@
 import { User } from "store/user/types"
 import { Departement } from "store/departement/types"
+import { PresenceType } from "store/presence-type/types"
 
 export const SET_PRESENCE = 'SET_PRESENCE'
 export const SET_PRESENCES = 'SET_PRESENCES'
@@ -10,6 +11,7 @@ export interface Presence {
   typeId: number
   user?: User,
   departement?: Departement
+  type?: PresenceType
   createdAt?: string | Date
   updatedAt?: string | Date
 }
