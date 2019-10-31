@@ -15,7 +15,7 @@ export const useStyle = makeStyles(theme => ({
   },
   RightSection: {
     padding: 20,
-    backgroundImage: `url(${BackgroundImage2})`,
+    // backgroundImage: `url(${BackgroundImage2})`,
     backgroundSize: 'cover'
   },
   Logo: {
