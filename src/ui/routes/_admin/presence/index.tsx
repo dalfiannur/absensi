@@ -91,7 +91,7 @@ const PresenceRoute = (props: PresenceRouteProps) => {
       <FilterDialog
         open={openFilterDialog}
         onClose={() => setOpenFilterDialog(false)}
-        onSubmit={setFilterValue} />
+        onSubmit={setFilterValues} />
     </React.Fragment>
   )
 }

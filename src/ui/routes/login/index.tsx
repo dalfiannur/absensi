@@ -1,10 +1,16 @@
 import * as React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { Grid, TextField, Button } from '@material-ui/core'
+import { Grid, TextField } from '@material-ui/core'
 import history from 'utils/history'
 import Logo from '../../../logo.png'
 import BackgroundImage from '../../../assets/background-login.jpg'
 import BackgroundImage2 from '../../../assets/background-login-2.jpg'
+
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 
 const useStyle = makeStyles(theme => ({
   Container: {
@@ -16,10 +22,6 @@ const useStyle = makeStyles(theme => ({
   },
   TextField: {
     marginTop: 20
-  },
-  LeftSection: {
-    backgroundImage: `url(${BackgroundImage})`,
-    backgroundSize: 'cover'
   },
   RightSection: {
     padding: 20,
@@ -37,7 +39,41 @@ const useStyle = makeStyles(theme => ({
     marginTop: 20,
     marginLeft: 'auto',
     marginRight: 'auto',
-    display: 'block'
+    display: 'block',
+    backgroundColor: '#94fc13'
+  },
+  card: {
+    minWidth: 275,
+  },
+  bullet: {
+    display: 'inline-block',
+    margin: '0 2px',
+    transform: 'scale(0.8)',
+  },
+  title: {
+    fontSize: 14,
+  },
+  pos: {
+    marginBottom: 12,
+  },
+  cardStyle: {
+    // height : 300,
+    // width : 500,
+    // background: '#94fc13',
+    // marginTop : 100,
+    // marginLeft : 380
+    position: 'relative',
+    width: '400px',
+    height: '350px',
+    top: 'calc(50% - 175px)',
+    left: 'calc(50% - 190px)',
+    borderRadius: '2px',
+    overflow: 'hidden',
+    boxShadow: 'inset 0 0 0 200px rgba(255,255,255,0.05)',
+    opacity: 0.9
+  },
+  Judul: {
+    marginLeft: 70
   }
 }))
 
@@ -62,13 +98,17 @@ const LoginRoute = () => {
       })
   }
 
+  const bull = <span className={classes.bullet}>•</span>;
+  
   return (
     <React.Fragment>
       <Grid container className={classes.Container}>
-        <Grid item md={9} className={classes.LeftSection}></Grid>
-        <Grid item md={3} className={classes.RightSection}>
-          <img className={classes.Logo} src={Logo} alt='Kalbe' />
-          <TextField
+      <Grid item md={12} className={classes.RightSection}>
+      <Card className={classes.cardStyle}>
+      <CardContent>
+      <img className={classes.Logo} src={Logo} alt='Kalbe' />
+      <h3 className={classes.Judul}>Barcode Attendance System</h3>
+      <TextField
             id="input-username"
             label="Username"
             className={classes.TextField}
@@ -93,8 +133,10 @@ const LoginRoute = () => {
             className={classes.ButtonLogin}
           >
             Login
-          </Button>
-        </Grid>
+          </Button>   
+      </CardContent>
+      </Card>
+      </Grid>
       </Grid>
     </React.Fragment>
   )
