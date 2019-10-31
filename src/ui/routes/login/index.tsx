@@ -124,6 +124,7 @@ const LoginRoute = () => {
             margin="dense"
             variant="outlined"
             fullWidth
+            type='password'
             onChange={e => setPassword(e.target.value)}
           />
           <Button
