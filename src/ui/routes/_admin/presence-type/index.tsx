@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Moment from 'moment'
 import { useState, useEffect } from 'react';
 import { AppState } from 'store'
 import {
@@ -14,7 +15,7 @@ import { connect } from 'react-redux';
 import { EditRounded, DeleteRounded, AddRounded } from '@material-ui/icons';
 import { Dispatch } from 'redux';
 import FormEdit from './FormEdit';
-import FormAdd from './FormAdd';
+import FormAdd from './components/FormAdd';
 import DeleteConfirmation from './DeleteConfirmation';
 import { PresenceType, PresenceTypeState } from 'store/presence-type/types';
 import { setPresenceType, setPresenceTypes } from 'store/presence-type/actions';
@@ -64,6 +65,8 @@ const PresenceTypeRoute = (props: PresenceTypeRouteProps) => {
               <TableCell>#</TableCell>
               <TableCell>Code</TableCell>
               <TableCell>Name</TableCell>
+              <TableCell>Start Time</TableCell>
+              <TableCell>End Time</TableCell>
               <TableCell>Created Date</TableCell>
               <TableCell></TableCell>
             </TableRow>
@@ -75,7 +78,9 @@ const PresenceTypeRoute = (props: PresenceTypeRouteProps) => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{item.code}</TableCell>
                   <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.createdAt}</TableCell>
+                  <TableCell>{item.startTime}</TableCell>
+                  <TableCell>{item.endTime}</TableCell>
+                  <TableCell>{Moment(item.createdAt).format('DD-MM-YYYY HH:mm')}</TableCell>
                   <TableCell>
                     <IconButton color='primary' onClick={() => handleFormEdit(item)}>
                       <EditRounded />

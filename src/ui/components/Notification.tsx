@@ -17,7 +17,7 @@ const Notification = (props: NotificationProps) => {
           horizontal: 'right'
         }}
         key={`top, right`}
-        autoHideDuration={3000}
+        autoHideDuration={8000}
         open={props.open}
         onClose={props.onClose}
         ContentProps={{

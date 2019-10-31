@@ -1,82 +1,39 @@
 import * as React from 'react'
 import * as _ from 'lodash'
 import moment from 'moment'
-import { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Dialog, DialogContent, Grid, DialogTitle } from '@material-ui/core';
-import Logo from '../../../logo.png';
-import UserImage from '../../../user.jpg';
-import { User } from 'store/user/types';
 import history from 'utils/history'
-import { PresenceType, PresenceTypeState } from 'store/presence-type/types';
+import { useState } from 'react';
+import { TextField } from '@material-ui/core';
+import { User } from 'store/user/types';
+import { PresenceType } from 'store/presence-type/types';
 import { AppState } from 'store';
 import { Dispatch } from 'redux';
 import { setPresenceTypes } from 'store/presence-type/actions';
 import { connect } from 'react-redux';
-import Particles from 'react-particles-js';
+import { useStyles } from './style'
+import { PresenceProps, PresenceCount } from './interfaces'
 
-const useStyles = makeStyles(theme => ({
-  TextField: {
-    position: 'absolute',
-    left: '30%',
-    right: '30%',
-    top: '50%',
-    bottom: '45%'
-  },
-  Title: {
-    position: 'absolute',
-    top: 100,
-    left: '25%',
-    right: '25%',
-    textAlign: 'center'
-  },
-  Logo: {
-    height: 65,
-    width: 100,
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginTop: 30
-  },
-  ProfilePicture: {
-    height: 'auto',
-    width: '100%'
-  },
-  Dialog: {
-    width: 550
-  },
-  Welcome: {
-    textAlign: 'center',
-    left: '25%',
-    right: '25%',
-    fontSize: 25
-  },
-  ButtonLogin: {
-    position: 'absolute',
-    right: 0,
-    top: 10,
-    borderRadius: '10px 0px 0px 10px',
-    padding: '15px 0px',
-    width: 80,
-    fontSize: 15,
-    fontWeight: 500,
-    textAlign: 'center',
-    background: 'linear-gradient(180deg, #134e5e, #71b280)',
-    border: 0
-  }
-}));
-
-const inputReadonly = { readOnly: true }
-
-interface PresenceProps {
-  PresenceType: PresenceTypeState,
-  setPresenceTypes: (types: PresenceType[]) => void
-}
+import * as API from './API'
+import Logo from '../../../logo.png'
+import NoEventDialog from './components/NoEventDialog'
+import UserHasAttendedDialog from './components/UserHasAttendedDialog'
+import UserDetailDialog from './components/UserDetailDialog'
+import Background from './components/Background'
+import PresenceCountSide from './components/PresenceCount'
+import UserNotFoundDialog from './components/UserNotFoundDialog'
+import DateTimeSide from './components/DateTimeSide';
 
 const PresenceRoute = (props: PresenceProps) => {
   const classes = useStyles();
+
+  const { presenceType, presenceTypes } = props.PresenceType
+  const { setPresenceTypes } = props
+
   const [open, setOpen] = useState(false)
+  const [openNoEvent, setOpenNoEvent] = useState(false)
   const [openUserNotFound, setOpenUserNotFound] = useState(false)
+  const [openUserHasAttendedDialog, setOpenUserHasAttendedDialog] = useState(false)
+  const [presenceCount, setPresenceCount] = useState<PresenceCount[]>([])
   const [NIK, setNIK] = useState('')
   const [user, setUser] = useState<User>({
     nik: '',
@@ -84,215 +41,113 @@ const PresenceRoute = (props: PresenceProps) => {
     username: ''
   })
 
+  const generatePresenceCount = async (data: any[]) => {
+    const items: PresenceCount[] = []
+    for (let i = 0; i < data.length; i++) {
+      const count = await API.fetchCountPresence(_.toInteger(data[i].id))
+
+      items.push({
+        name: data[i].name,
+        count
+      })
+    }
+    setPresenceCount(items)
+  }
+
   React.useEffect(() => {
-    if (props.PresenceType.presenceTypes.length === 0) {
-      fetch(`${process.env.REACT_APP_API}/presence-types`)
-        .then(res => res.json())
+    if (presenceTypes.length === 0) {
+      API.fetchPresenceType()
         .then(data => {
-          props.setPresenceTypes(data.items)
+          setPresenceTypes(data)
+          generatePresenceCount(data)
         })
     }
-  }, [props.setPresenceTypes])
+  }, [setPresenceTypes])
 
-  const postPresence = (userId: number) => {
+  const findTypeId = () => {
     const date = moment(new Date())
-    const type = props.PresenceType.presenceTypes.filter(item => {
+    const type = presenceTypes.filter(item => {
       const start = moment(item.startTime, 'HH:mm')
       const end = moment(item.endTime, 'HH:mm')
       if (start.isSameOrBefore(date) && end.isAfter(date)) return item
     })
-    
-    fetch(`${process.env.REACT_APP_API}/presence`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        userId,
-        typeId: _.toInteger(type[0].id)
-      })
-    })
+    return type[0] ? _.toInteger(type[0].id) : null
   }
-
-   
 
   const handleTextField = async (e: any) => {
     if (e.keyCode === 13) {
-      fetch(`${process.env.REACT_APP_API}/user/${e.target.value}/nik`)
-        .then(res => {
-          if (res.status === 404) {
+      const typeId = findTypeId()
+      if (!typeId) {
+        setOpenNoEvent(true)
+        setNIK('')
+        setTimeout(() => {
+          setOpenNoEvent(false)
+        }, 4000)
+      } else {
+        API.findUserByNIK(NIK)
+          .then(data => {
+            setUser(data)
+            API.checkUser(data.id, typeId)
+              .then(exist => {
+                if (!exist) {
+                  setOpen(true);
+                  generatePresenceCount(presenceTypes)
+                  API.postPresence(_.toInteger(data.id), typeId)
+                  setTimeout(() => {
+                    setNIK('')
+                    setOpen(false)
+                  }, 4000)
+                } else {
+                  setOpenUserHasAttendedDialog(true)
+                  setTimeout(() => {
+                    setOpenUserHasAttendedDialog(false)
+                  }, 4000)
+                }
+              })
+          })
+          .catch(() => {
             setOpenUserNotFound(true)
             setTimeout(() => {
               Promise.resolve(setNIK('')).then(() => {
                 setOpenUserNotFound(false);
               });
             }, 4000);
-          } else {
-            setOpen(true);
-            res.json().then((data) => {
-              setUser(data)
-              postPresence(_.toInteger(data.id))
-              setTimeout(() => {
-                setNIK('')
-                setOpen(false)
-              }, 5000)
-            })
-          }
-        })
+          })
+      }
     }
   }
 
   return (
-    
     <React.Fragment>
-      <div>
-      <Particles
-        params={{
-          particles: {
-            number: {
-              value: 100,
-              density: {
-                enable: true,
-                value_area: 900
-              }
-            },
-            color: {
-              value: '#a8ff3e'
-            },
-            shape: {
-              type: 'circle',
-              stroke: {
-                width: 2,
-                color: '#a8ff3e'
-              },
-              polygon: {
-                nb_sides: 8
-              },
-              image: {
-                src: '',
-                width: 100,
-                height: 100
-              }
-            },
-            opacity: {
-              value: 1,
-              random: false,
-              anim: {
-                enable: false,
-                speed: 2,
-                opacity_min: 0,
-                sync: false
-              }
-            },
-            size: {
-              value: 2,
-              random: false,
-              anim: {
-                enable: false,
-                speed: 20,
-                size_min: 0,
-                sync: false
-              }
-            },
-            line_linked: {
-              enable: true,
-              distance: 100,
-              color: '#a8ff3e',
-              opacity: 1,
-              width: 2
-            },
-            move: {
-              enable: true,
-              speed: 2,
-              direction: 'none',
-              random: false,
-              straight: false,
-              out_mode: 'out',
-              bounce: false,
-              attract: {
-                enable: false,
-                rotateX: 3000,
-                rotateY: 3000
-              }
-            },
-          }
-        
-        }}
-        style={{
-          position: 'absolute',
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0
-        }} />
-        <button
-          className={classes.ButtonLogin}
-          onClick={() => history.push('/login')}>Login</button>
-        <img className={classes.Logo} src={Logo} alt='Logo' />
-        <h1 className={classes.Title}>ABSENSI PESERTA MTGA</h1>
-        <TextField
-          autoFocus
-          value={NIK}
-          className={classes.TextField}
-          onChange={e => setNIK(e.target.value)}
-          onKeyDown={e => handleTextField(e)}
-        />
-      </div>
-      <Dialog
+      <Background />
+      <DateTimeSide />
+      <PresenceCountSide data={presenceCount} />
+      <button
+        className={classes.ButtonLogin}
+        onClick={() => history.push('/login')}>Login</button>
+      <img className={classes.Logo} src={Logo} alt='Logo' />
+      <h1 className={classes.Title}>ABSENSI PESERTA MTGA</h1>
+      <TextField
+        autoFocus
+        value={NIK}
+        className={classes.TextField}
+        onChange={e => setNIK(e.target.value)}
+        onKeyDown={e => handleTextField(e)}
+      />
+
+      <UserDetailDialog
         open={open}
-        keepMounted
-        onClose={() => setOpen(!open)}
-        aria-labelledby="detail-user"
-        aria-describedby="detail-user-description"
-      >
-        <DialogContent className={classes.Dialog}>
-          <h3 className={classes.Welcome}>WELCOME TO MTGA</h3>
-          <Grid container spacing={2}>
-            <Grid item md={5}>
-              <img
-                src={UserImage}
-                alt='User Profile'
-                className={classes.ProfilePicture} />
-            </Grid>
-            <Grid item md={7}>
-              <TextField
-                label='NIK'
-                margin='dense'
-                variant='outlined'
-                value={user.nik}
-                InputProps={inputReadonly} />
-              <TextField
-                label='Nama'
-                margin='dense'
-                variant='outlined'
-                value={user.name}
-                InputProps={inputReadonly} />
-              <TextField
-                label='Departemen'
-                margin='dense'
-                variant='outlined'
-                InputProps={inputReadonly}
-                value={user.departement ? user.departement.name : ''} />
-              <TextField
-                label='Jumlah Improvement'
-                margin='dense'
-                variant='outlined'
-                InputProps={inputReadonly}
-                value={user.improvement ? user.improvement : ''} />
-            </Grid>
-          </Grid>
-        </DialogContent>
-      </Dialog>
-      <Dialog
+        user={user}
+        onClose={() => setOpen(!open)} />
+      <UserNotFoundDialog
         open={openUserNotFound}
-        onClose={() => setOpenUserNotFound(false)}
-      >
-        <DialogTitle>Not Found</DialogTitle>
-        <DialogContent>
-          User not found, check correctly your QR Code or Barcode
-        </DialogContent>
-      </Dialog>
+        onClose={() => setOpenUserNotFound(false)} />
+      <NoEventDialog
+        open={openNoEvent}
+        onClose={() => setOpenNoEvent(false)} />
+      <UserHasAttendedDialog
+        open={openUserHasAttendedDialog}
+        onClose={() => setOpenUserHasAttendedDialog(false)} />
     </React.Fragment>
   )
 }
@@ -304,4 +159,5 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   setPresenceTypes: (types: PresenceType[]) => dispatch(setPresenceTypes(types))
 })
+
 export default connect(mapStateToProps, mapDispatchToProps)(PresenceRoute)

@@ -1,45 +1,8 @@
 import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
 import { Grid, TextField, Button } from '@material-ui/core'
 import history from 'utils/history'
-import Logo from '../../../logo.png'
-import BackgroundImage from '../../../assets/background-login.jpg'
-import BackgroundImage2 from '../../../assets/background-login-2.jpg'
-
-const useStyle = makeStyles(theme => ({
-  Container: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0
-  },
-  TextField: {
-    marginTop: 20
-  },
-  LeftSection: {
-    backgroundImage: `url(${BackgroundImage})`,
-    backgroundSize: 'cover'
-  },
-  RightSection: {
-    padding: 20,
-    backgroundImage: `url(${BackgroundImage2})`,
-    backgroundSize: 'cover'
-  },
-  Logo: {
-    height: 50,
-    width: 'auto',
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto'
-  },
-  ButtonLogin: {
-    marginTop: 20,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    display: 'block'
-  }
-}))
+import Logo from 'assets/logo.png'
+import { useStyle } from './style'
 
 const LoginRoute = () => {
   const classes = useStyle();
@@ -84,6 +47,7 @@ const LoginRoute = () => {
             margin="dense"
             variant="outlined"
             fullWidth
+            type='password'
             onChange={e => setPassword(e.target.value)}
           />
           <Button

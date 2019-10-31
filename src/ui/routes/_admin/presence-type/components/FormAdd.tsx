@@ -6,11 +6,12 @@ import { AppState } from 'store'
 import { Dispatch } from 'redux'
 import { SaveRounded, CancelRounded } from '@material-ui/icons'
 import Notification from 'ui/components/Notification'
-import { green } from '@material-ui/core/colors'
+import { green, red } from '@material-ui/core/colors'
 import { PresenceTypeState, PresenceType } from 'store/presence-type/types'
 import { setPresenceTypes } from 'store/presence-type/actions'
 import DateFnsUtils from '@date-io/date-fns'
-import { KeyboardTimePicker } from '@material-ui/pickers'
+import { TimePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
+import { useStyle } from './style'
 
 interface FormEditProps {
   open: boolean
@@ -20,13 +21,15 @@ interface FormEditProps {
 }
 
 const FormEdit = (props: FormEditProps) => {
+  const classes = useStyle()
+  const { presenceTypes, presenceType } = props.PresenceType!
+
   const [openNotification, setOpenNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
   const [notificationColor, setNotificationColor] = useState('')
   const [name, setName] = useState('')
-  const [code, setCode] = useState('')
-  const [startTime, setStartTime] = useState('')
-  const [endTime, setEndTime] = useState('')
+  const [startTime, setStartTime] = useState<any>('')
+  const [endTime, setEndTime] = useState<any>('')
 
   const handleSave = () => {
     fetch(`${process.env.REACT_APP_API}/presence-type`, {
@@ -35,29 +38,23 @@ const FormEdit = (props: FormEditProps) => {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ code, name })
+      body: JSON.stringify({ name, startTime, endTime })
     })
-      .then(res => res.json())
-      .then((data) => {
-        const types = props.PresenceType!.presenceTypes.map((item, index) => {
-          if (item.id === props.PresenceType!.presenceType.id) {
-            return props.PresenceType!.presenceType
-          }
-          return item
-        })
+      .then(async res => {
+        const data = await res.json()
 
-        props.setPresenceTypes!([...types, data])
-        setNotificationMessage('Data successfully created')
-        setNotificationColor(green[600])
-        setOpenNotification(true)
-        props.onClose()
-      })
-      .catch((error) => {
-        console.error(error)
-        setNotificationMessage('Error while getting data')
-        setNotificationColor(green[600])
-        setOpenNotification(true)
-        props.onClose()
+        if (res.status === 201) {
+          props.setPresenceTypes!([...presenceTypes, data])
+          setNotificationMessage('Data successfully created')
+          setNotificationColor(green[600])
+          setOpenNotification(true)
+          props.onClose()
+        } else {
+          setNotificationMessage(data.sqlMessage)
+          setNotificationColor(red[600])
+          setOpenNotification(true)
+          props.onClose()
+        }
       })
   }
 
@@ -69,29 +66,36 @@ const FormEdit = (props: FormEditProps) => {
         fullWidth
         maxWidth='xs'
       >
-        <DialogTitle>Create New Presence Type</DialogTitle>
+        <DialogTitle className={classes.Title}>Create New Presence Type</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            label='Presence Code'
-            fullWidth
-            margin='dense'
-            variant='outlined'
-            onChange={(e: any) => setCode(e.target.value)}
-          />
-          <TextField
-            label='Presence Name'
-            fullWidth
-            margin='dense'
-            variant='outlined'
-            onChange={(e: any) => setName(e.target.value)}
-          />
-          <KeyboardTimePicker
-            margin='dense'
-            label='Start Time'
-            value={startTime}
-            onChange={(e: any) => setStartTime(e.target.value)} />
-            
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <TextField
+              label='Presence Name'
+              fullWidth
+              margin='dense'
+              variant='outlined'
+              onChange={(e: any) => setName(e.target.value)} />
+            <TimePicker
+              autoOk
+              fullWidth
+              clearable
+              ampm={false}
+              variant='dialog'
+              margin="dense"
+              label="Start Time"
+              value={startTime}
+              onChange={setStartTime} />
+            <TimePicker
+              autoOk
+              fullWidth
+              clearable
+              ampm={false}
+              variant='dialog'
+              margin="dense"
+              label="End Time"
+              value={endTime}
+              onChange={setEndTime} />
+          </MuiPickersUtilsProvider>
         </DialogContent>
         <DialogActions>
           <IconButton onClick={props.onClose}>
