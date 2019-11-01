@@ -4,6 +4,8 @@ export const SET_ROLES = 'SET_ROLES'
 export interface UserRole {
   id?: number
   name: string
+  createdAt?: string | Date
+  updatedAt?: string | Date
 }
 
 export interface UserRoleState {

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import querystring from 'querystring'
 import { useState, useEffect } from 'react';
 import { AppState } from 'store'
 import {
@@ -9,90 +10,141 @@ import {
   TableCell,
   TableBody,
   IconButton,
+  TableFooter,
+  TablePagination
 } from '@material-ui/core';
 import { connect } from 'react-redux';
-import { EditRounded, DeleteRounded, VisibilityRounded, AddRounded } from '@material-ui/icons';
+import EditIcon from '@material-ui/icons/Edit'
+import DeleteIcon from '@material-ui/icons/Delete'
+import AddIcon from '@material-ui/icons/Add'
 import { Dispatch } from 'redux';
-import FormEdit from './FormEdit';
-import FormAdd from './FormAdd';
-import DeleteConfirmation from './DeleteConfirmation';
+import FormEdit from './components/FormEdit';
+import FormAdd from './components/FormAdd';
+import DeleteConfirmation from './components/DeleteConfirmation';
 import { DepartementState, Departement } from 'store/departement/types';
 import { setDepartement, setDepartements } from 'store/departement/actions';
+import TablePaginationActions from 'ui/components/TablePaginationActions'
+import { useStyle } from './style'
 
 interface DepartementRouteProps {
   Departement?: DepartementState
-  setDepartement?: (departement: Departement) => void
   setDepartements?: (roles: Departement[]) => void
 }
 
 const DepartementRoute = (props: DepartementRouteProps) => {
+  const classes = useStyle()
+  const { departements } = props.Departement!
+  const { setDepartements } = props
+
   const [openFormEdit, setOpenFormEdit] = useState(false)
   const [openFormAdd, setOpenFormAdd] = useState(false)
   const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false)
 
+  const [limit, setLimit] = useState(10)
+  const [page, setPage] = useState(1)
+
+  const [departement, setDepartement] = useState<Departement>({
+    name: '',
+    code: ''
+  })
+
+  const [tableInfo, setTableInfo] = useState({
+    totalItems: 0,
+    totalPages: 0
+  })
+
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API}/departements`)
+    const query = querystring.stringify({ page, limit })
+    fetch(`${process.env.REACT_APP_API}/departements?${query}`)
       .then(res => res.json())
       .then(data => {
-        props.setDepartements!(data.items)
+        setDepartements!(data.items)
+        setTableInfo({
+          totalItems: data.totalItems,
+          totalPages: data.pageCount
+        })
       })
-  }, [props.setDepartements])
+  }, [limit, page])
 
   const handleFormEdit = (departement: Departement) => {
-    props.setDepartement!(departement)
+    setDepartement(departement)
     setOpenFormEdit(true)
   }
 
   const handleDeleteConfirmation = (departement: Departement) => {
-    props.setDepartement!(departement)
+    setDepartement(departement)
     setOpenDeleteConfirmation(true)
   }
 
   return (
     <React.Fragment>
       <Paper style={{ position: 'relative' }}>
-        <IconButton onClick={() => setOpenFormAdd(true)}>
-          <AddRounded />
-        </IconButton>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>#</TableCell>
-              <TableCell>Code</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Created Date</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {
-              props.Departement!.departements.map((item, index) => (
-                <TableRow key={`row-${item.id}`}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{item.code}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.createdAt}</TableCell>
-                  <TableCell>
-                    <IconButton color='primary' onClick={() => handleFormEdit(item)}>
-                      <EditRounded />
-                    </IconButton>
-                    <IconButton color='secondary' onClick={() => handleDeleteConfirmation(item)}>
-                      <DeleteRounded />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            }
-          </TableBody>
-        </Table>
+        <div className={classes.PaperHeader}>
+          <IconButton onClick={() => setOpenFormAdd(true)}>
+            <AddIcon />
+          </IconButton>
+        </div>
+        <div className={classes.TableWrapper}>
+          <Table
+            size='small'
+            stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Created Date</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {
+                departements.map((item, index) => (
+                  <TableRow key={`row-${item.id}`}>
+                    <TableCell>{(index + 1) + ((page - 1) * limit)}</TableCell>
+                    <TableCell>{item.code}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.createdAt}</TableCell>
+                    <TableCell>
+                      <IconButton color='primary' onClick={() => handleFormEdit(item)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color='secondary' onClick={() => handleDeleteConfirmation(item)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              }
+            </TableBody>
+          </Table>
+        </div>
+        <div className={classes.PaginationWrapper}>
+          <TablePagination
+            className={classes.Pagination}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            colSpan={5}
+            count={tableInfo.totalItems}
+            rowsPerPage={limit}
+            page={page - 1}
+            SelectProps={{
+              inputProps: { 'aria-label': 'rows per page' },
+              native: true,
+            }}
+            onChangePage={(__, newPage) => setPage(newPage + 1)}
+            onChangeRowsPerPage={(e: any) => setLimit(e.target.value)}
+            ActionsComponent={TablePaginationActions} />
+        </div>
       </Paper>
       <FormEdit
+        data={departement}
         open={openFormEdit}
         onClose={() => setOpenFormEdit(false)} />
       <FormAdd
         open={openFormAdd}
         onClose={() => setOpenFormAdd(false)} />
       <DeleteConfirmation
+        data={departement}
         open={openDeleteConfirmation}
         onClose={() => setOpenDeleteConfirmation(false)} />
     </React.Fragment>

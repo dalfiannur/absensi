@@ -4,9 +4,10 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButto
 import { connect } from 'react-redux'
 import { AppState } from 'store'
 import { Dispatch } from 'redux'
-import { SaveRounded, CancelRounded } from '@material-ui/icons'
+import SaveIcon from '@material-ui/icons/Save'
+import CancelIcon from '@material-ui/icons/Cancel'
 import Notification from 'ui/components/Notification'
-import { green } from '@material-ui/core/colors'
+import green from '@material-ui/core/colors/green'
 import { DepartementState, Departement } from 'store/departement/types'
 import { setDepartements } from 'store/departement/actions'
 
@@ -14,16 +15,18 @@ interface FormEditProps {
   open: boolean
   Departement?: DepartementState
   onClose: () => void
-  setPresenceTypes?: (types: Departement[]) => void
+  setDepartements?: (departements: Departement[]) => void
 }
 
 const FormEdit = (props: FormEditProps) => {
-  const state = props.Departement!
+  const { departements } = props.Departement!
+  const { open, onClose, setDepartements } = props
+
   const [openNotification, setOpenNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
   const [notificationColor, setNotificationColor] = useState('')
+
   const [name, setName] = useState('')
-  const [code, setCode] = useState('')
 
   const handleSave = () => {
     fetch(`${process.env.REACT_APP_API}/departement`, {
@@ -32,50 +35,34 @@ const FormEdit = (props: FormEditProps) => {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ code, name })
+      body: JSON.stringify({ name })
     })
       .then(res => res.json())
       .then((data) => {
-        const types = state.departements.map((item, index) => {
-          if (item.id === state.departement.id) {
-            return state!.departement
-          }
-          return item
-        })
-
-        props.setPresenceTypes!([...types, data])
+        setDepartements!([...departements, data])
         setNotificationMessage('Data successfully created')
         setNotificationColor(green[600])
         setOpenNotification(true)
-        props.onClose()
+        onClose()
       })
       .catch((error) => {
-        console.error(error)
         setNotificationMessage('Error while getting data')
         setNotificationColor(green[600])
         setOpenNotification(true)
-        props.onClose()
+        onClose()
       })
   }
 
   return (
     <React.Fragment>
       <Dialog
-        open={props.open}
-        onClose={props.onClose}
+        open={open}
+        onClose={onClose}
         fullWidth
         maxWidth='xs'
       >
         <DialogTitle>Create New Departement</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            label='Departement Code'
-            fullWidth
-            margin='dense'
-            variant='outlined'
-            onChange={(e: any) => setCode(e.target.value)}
-          />
           <TextField
             autoFocus
             label='Departement Name'
@@ -86,11 +73,11 @@ const FormEdit = (props: FormEditProps) => {
           />
         </DialogContent>
         <DialogActions>
-          <IconButton onClick={props.onClose}>
-            <CancelRounded />
+          <IconButton onClick={onClose}>
+            <CancelIcon />
           </IconButton>
           <IconButton onClick={() => handleSave()}>
-            <SaveRounded />
+            <SaveIcon />
           </IconButton>
         </DialogActions>
       </Dialog>
@@ -108,7 +95,7 @@ const mapStateToProps = (state: AppState) => ({
 })
 
 const mapActionToProps = (dispatch: Dispatch) => ({
-  setPresenceTypes: (types: Departement[]) => dispatch(setDepartements(types))
+  setDepartements: (departements: Departement[]) => dispatch(setDepartements(departements))
 })
 
 export default connect(mapStateToProps, mapActionToProps)(FormEdit)

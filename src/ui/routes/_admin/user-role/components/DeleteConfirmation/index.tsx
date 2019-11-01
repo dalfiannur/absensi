@@ -5,42 +5,45 @@ import { UserRoleState, UserRole } from 'store/user-role/types'
 import { connect } from 'react-redux'
 import { AppState } from 'store'
 import { Dispatch } from 'redux'
-import { CancelRounded, CheckRounded } from '@material-ui/icons'
+import CancelIcon from '@material-ui/icons/Cancel'
+import CheckIcon from '@material-ui/icons/Check'
 import { setRoles } from 'store/user-role/actions'
 import Notification from 'ui/components/Notification'
 import { green, red } from '@material-ui/core/colors'
 
 interface DeleteConfirmationProps {
   open: boolean
+  data: UserRole
   UserRole?: UserRoleState
   setRoles: (roles: UserRole[]) => void
   onClose: () => void
-  onSuccess: () => void
 }
 
 const DeleteConfirmation = (props: DeleteConfirmationProps) => {
+  const { roles } = props.UserRole!
+  const { data, open, onClose, setRoles } = props
+
   const [openNotification, setOpenNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
   const [notificationColor, setNotificationColor] = useState('')
 
   const handleDelete = () => {
-    fetch(`${process.env.REACT_APP_API}/user-role/${props.UserRole!.role.id}`, {
+    fetch(`${process.env.REACT_APP_API}/user-role/${data.id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`
       }
     })
       .then(() => {
-        const roles = props.UserRole!.roles.filter((item) => item.id !== props.UserRole!.role.id)
-        props.setRoles(roles)
-        props.onClose()
+        const result = roles.filter((item) => item.id !== data.id)
+        setRoles(result)
+        onClose()
         setNotificationMessage('Data successfully deleted')
         setNotificationColor(green[600])
         setOpenNotification(true)
       })
       .catch(error => {
-        console.error(error)
-        props.onClose()
+        onClose()
         setNotificationMessage('Data failed to delete')
         setNotificationColor(red[600])
         setOpenNotification(true)
@@ -50,19 +53,18 @@ const DeleteConfirmation = (props: DeleteConfirmationProps) => {
   return (
     <React.Fragment>
       <Dialog
-        open={props.open}
-        onClose={props.onClose}
+        open={open}
+        onClose={onClose}
         fullWidth
-        maxWidth='xs'
-      >
+        maxWidth='xs'>
         <DialogTitle>Delete Confirmation</DialogTitle>
         <DialogContentText>Are you sure want to delete this data?</DialogContentText>
         <DialogActions>
           <IconButton onClick={props.onClose}>
-            <CancelRounded />
+            <CancelIcon />
           </IconButton>
           <IconButton onClick={handleDelete}>
-            <CheckRounded />
+            <CheckIcon />
           </IconButton>
         </DialogActions>
       </Dialog>

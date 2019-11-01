@@ -1,104 +1,92 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton } from '@material-ui/core'
 import { connect } from 'react-redux'
 import { AppState } from 'store'
 import { Dispatch } from 'redux'
-import { SaveRounded, CancelRounded } from '@material-ui/icons'
+import SaveIcon from '@material-ui/icons/Save'
+import CancelIcon from '@material-ui/icons/Cancel'
 import Notification from 'ui/components/Notification'
-import { green } from '@material-ui/core/colors'
-import { PresenceTypeState, PresenceType } from 'store/presence-type/types'
-import { setPresenceType, setPresenceTypes } from 'store/presence-type/actions'
+import green from '@material-ui/core/colors/green'
+import { DepartementState, Departement } from 'store/departement/types'
+import { setDepartements } from 'store/departement/actions'
 
 interface FormEditProps {
   open: boolean
-  PresenceType?: PresenceTypeState
+  data: Departement
+  Departement?: DepartementState
   onClose: () => void
-  setPresenceType?: (type: PresenceType) => void
-  setPresenceTypes?: (roles: PresenceType[]) => void
+  setDepartements?: (roles: Departement[]) => void
 }
 
 const FormEdit = (props: FormEditProps) => {
-  const state = props.PresenceType!
+  const { departements } = props.Departement!
+  const { data, open, onClose, setDepartements } = props
+
   const [openNotification, setOpenNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
   const [notificationColor, setNotificationColor] = useState('')
 
+  const [name, setName] = useState('')
+
+  useEffect(() => {
+    setName(data.name)
+  }, [data])
+
   const handleUpdate = () => {
-    fetch(`${process.env.REACT_APP_API}/presence-type/${state.presenceType.id}`, {
+    fetch(`${process.env.REACT_APP_API}/departement/${data.id}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        code: state.presenceType.code,
-        name: state.presenceType.name
-      })
+      body: JSON.stringify({ name })
     })
       .then(res => res.json())
-      .then(() => {
-        const types = state.presenceTypes.map((item, index) => {
-          if (item.id === state.presenceType.id) {
-            return state.presenceType
+      .then(result => {
+        const filteredData = departements.map((item) => {
+          if (item.id === data.id) {
+            return result
           }
           return item
         })
 
-        props.setPresenceTypes!(types)
+        setDepartements!(filteredData)
         setNotificationMessage('Data successfully updated')
         setNotificationColor(green[600])
         setOpenNotification(true)
-        props.onClose()
+        onClose()
       })
       .catch((error) => {
-        console.error(error)
         setNotificationMessage('Error while getting data')
         setNotificationColor(green[600])
         setOpenNotification(true)
-        props.onClose()
+        onClose()
       })
   }
 
   return (
     <React.Fragment>
       <Dialog
-        open={props.open}
-        onClose={props.onClose}
-      >
-        <DialogTitle>Edit Presence Type</DialogTitle>
+        open={open}
+        onClose={onClose} >
+        <DialogTitle>Edit Departement</DialogTitle>
         <DialogContent>
-        <TextField
-            autoFocus
-            value={state!.presenceType.code}
-            label='Presence Type Code'
-            fullWidth
-            margin='dense'
-            variant='outlined'
-            onChange={(e: any) => props.setPresenceType!({
-              ...state.presenceType,
-              code: e.target.value
-            })}
-          />
           <TextField
             autoFocus
-            value={state!.presenceType.name}
+            value={name}
             label='Presence Type Name'
             fullWidth
             margin='dense'
             variant='outlined'
-            onChange={(e: any) => props.setPresenceType!({
-              ...state.presenceType,
-              name: e.target.value
-            })}
-          />
+            onChange={(e: any) => setName(e.target.value)} />
         </DialogContent>
         <DialogActions>
-          <IconButton onClick={props.onClose}>
-            <CancelRounded />
+          <IconButton onClick={onClose}>
+            <CancelIcon />
           </IconButton>
           <IconButton onClick={() => handleUpdate()}>
-            <SaveRounded />
+            <SaveIcon />
           </IconButton>
         </DialogActions>
       </Dialog>
@@ -112,12 +100,11 @@ const FormEdit = (props: FormEditProps) => {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  PresenceType: state.PresenceType
+  Departement: state.Departement
 })
 
 const mapActionToProps = (dispatch: Dispatch) => ({
-  setPresenceType: (type: PresenceType) => dispatch(setPresenceType(type)),
-  setPresenceTypes: (types: PresenceType[]) => dispatch(setPresenceTypes(types))
+  setDepartements: (types: Departement[]) => dispatch(setDepartements(types))
 })
 
 export default connect(mapStateToProps, mapActionToProps)(FormEdit)

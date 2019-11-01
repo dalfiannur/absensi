@@ -12,7 +12,7 @@ import * as QR from 'qrcode'
 import { createCanvas } from 'canvas'
 import ReactToPrint from 'react-to-print'
 import SaveFile from 'save-file'
-import { UserState } from 'store/user/types'
+import { UserState, User } from 'store/user/types'
 import { AppState } from 'store'
 
 const useStyle = makeStyles(theme => ({
@@ -35,22 +35,23 @@ const useStyle = makeStyles(theme => ({
 
 interface PrintDialogProps {
   open: boolean
+  data: User
   User?: UserState
   onClose: () => void
 }
 
-const createBarcode = (data: string) => {
+const createBarcode = (nik: string) => {
   const canvas = createCanvas(400, 200);
-  Barcode(canvas, data, {
+  Barcode(canvas, nik, {
     format: 'CODE39',
     width: 1
   });
   return canvas.toDataURL();
 }
 
-const createQR = (data: string) => {
+const createQR = (nik: string) => {
   let qr = ''
-  QR.toDataURL(data, (error, url) => {
+  QR.toDataURL(nik, (error, url) => {
     qr = url;
   });
   return qr;
@@ -58,26 +59,24 @@ const createQR = (data: string) => {
 
 const PrintModal = (props: PrintDialogProps) => {
   const classes = useStyle();
+  const { data } = props
 
   const [selectCode, setSelectCode] = React.useState('barcode');
   const barcodeRef = React.useRef<any>(null);
   const qrRef = React.useRef<any>(null);
 
   const saveCode = () => {
-    const nik = props.User!.user.nik
-    const name = props.User!.user.name
-
     if (selectCode === 'barcode') {
       const canvas = createCanvas(400, 200, 'svg');
-      Barcode(canvas, nik, {
+      Barcode(canvas, data.nik, {
         format: 'CODE39',
         width: 1
       });
 
-      SaveFile(canvas.toDataURL('image/png'), `barcode-${name}.png`);
+      SaveFile(canvas.toDataURL('image/png'), `barcode-${data.name}.png`);
     } else {
-      QR.toDataURL(nik, (err, data) => {
-        SaveFile(data, `QR-${name}.png`)
+      QR.toDataURL(data.nik, (err, result) => {
+        SaveFile(result, `QR-${data.name}.png`)
       })
     }
   }
@@ -119,12 +118,12 @@ const PrintModal = (props: PrintDialogProps) => {
                   alt='Barcode'
                   ref={barcodeRef}
                   className={classes.Barcode}
-                  src={createBarcode(props.User!.user.nik || 'dummy')} />)
+                  src={createBarcode(data.nik || 'dummy')} />)
                 : (<img 
                   alt='QR'
                   ref={qrRef}
                   className={classes.QR}
-                  src={createQR(props.User!.user.nik || 'dummy')} />)
+                  src={createQR(data.nik || 'dummy')} />)
             }
           </Grid>
         </Grid>

@@ -1,104 +1,93 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton } from '@material-ui/core'
 import { connect } from 'react-redux'
 import { AppState } from 'store'
 import { Dispatch } from 'redux'
-import { SaveRounded, CancelRounded } from '@material-ui/icons'
+import { UserRole, UserRoleState } from 'store/user-role/types'
+import SaveIcon from '@material-ui/icons/Save'
+import CancelIcon from '@material-ui/icons/Cancel'
+import { setRoles } from 'store/user-role/actions'
 import Notification from 'ui/components/Notification'
 import { green } from '@material-ui/core/colors'
-import { DepartementState, Departement } from 'store/departement/types'
-import { setDepartements, setDepartement } from 'store/departement/actions'
 
 interface FormEditProps {
   open: boolean
-  Departement?: DepartementState
+  data: UserRole
+  UserRole?: UserRoleState
   onClose: () => void
-  setDepartement?: (type: Departement) => void
-  setDepartements?: (roles: Departement[]) => void
+  setRoles?: (roles: UserRole[]) => void
 }
 
 const FormEdit = (props: FormEditProps) => {
-  const state = props.Departement!
+  const { roles } = props.UserRole!
+  const { data, open, onClose, setRoles } = props
+
   const [openNotification, setOpenNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
   const [notificationColor, setNotificationColor] = useState('')
 
+  const [name, setName] = useState('')
+
+  useEffect(() => {
+    setName(data.name)
+  }, [data])
+
   const handleUpdate = () => {
-    fetch(`${process.env.REACT_APP_API}/departement/${state.departement.id}`, {
+    fetch(`${process.env.REACT_APP_API}/user-role/${data.id}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        code: state.departement.code,
-        name: state.departement.name
-      })
+      body: JSON.stringify({ name })
     })
       .then(res => res.json())
-      .then((data) => {
-        const types = state.departements.map((item) => {
-          if (item.id === state.departement.id) {
-            return state.departement
+      .then(result => {
+        const newData = roles.map((item) => {
+          if (item.id === data.id) {
+            return result
           }
           return item
         })
 
-        props.setDepartements!(types)
+        setRoles!(newData)
         setNotificationMessage('Data successfully updated')
         setNotificationColor(green[600])
         setOpenNotification(true)
-        props.onClose()
+        onClose()
       })
       .catch((error) => {
-        console.error(error)
         setNotificationMessage('Error while getting data')
         setNotificationColor(green[600])
         setOpenNotification(true)
-        props.onClose()
+        onClose()
       })
   }
 
   return (
     <React.Fragment>
       <Dialog
-        open={props.open}
-        onClose={props.onClose}
-      >
-        <DialogTitle>Edit Departement</DialogTitle>
+        open={open}
+        onClose={onClose}>
+        <DialogTitle>Edit User Role</DialogTitle>
         <DialogContent>
-        <TextField
-            autoFocus
-            value={state!.departement.code}
-            label='Presence Type Code'
-            fullWidth
-            margin='dense'
-            variant='outlined'
-            onChange={(e: any) => props.setDepartement!({
-              ...state.departement,
-              code: e.target.value
-            })}
-          />
           <TextField
             autoFocus
-            value={state!.departement.name}
-            label='Presence Type Name'
+            value={name}
+            label='Role Name'
             fullWidth
             margin='dense'
             variant='outlined'
-            onChange={(e: any) => props.setDepartement!({
-              ...state.departement,
-              name: e.target.value
-            })}
+            onChange={(e: any) => setName(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <IconButton onClick={props.onClose}>
-            <CancelRounded />
+          <IconButton onClick={onClose}>
+            <CancelIcon />
           </IconButton>
           <IconButton onClick={() => handleUpdate()}>
-            <SaveRounded />
+            <SaveIcon />
           </IconButton>
         </DialogActions>
       </Dialog>
@@ -112,12 +101,11 @@ const FormEdit = (props: FormEditProps) => {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  Departement: state.Departement
+  UserRole: state.UserRole
 })
 
 const mapActionToProps = (dispatch: Dispatch) => ({
-  setDepartement: (type: Departement) => dispatch(setDepartement(type)),
-  setDepartements: (types: Departement[]) => dispatch(setDepartements(types))
+  setRoles: (roles: UserRole[]) => dispatch(setRoles(roles))
 })
 
 export default connect(mapStateToProps, mapActionToProps)(FormEdit)

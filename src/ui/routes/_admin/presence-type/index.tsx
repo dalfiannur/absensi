@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Moment from 'moment'
+import querystring from 'querystring'
 import { useState, useEffect } from 'react';
 import { AppState } from 'store'
 import {
@@ -10,101 +11,142 @@ import {
   TableCell,
   TableBody,
   IconButton,
+  TablePagination
 } from '@material-ui/core';
+import TablePaginationActions from 'ui/components/TablePaginationActions'
 import { connect } from 'react-redux';
-import { EditRounded, DeleteRounded, AddRounded } from '@material-ui/icons';
+import EditIcon from '@material-ui/icons/Edit'
+import DeleteIcon from '@material-ui/icons/Delete'
+import AddIcon from '@material-ui/icons/Add'
 import { Dispatch } from 'redux';
-import FormEdit from './FormEdit';
+import FormEdit from './components/FormEdit';
 import FormAdd from './components/FormAdd';
-import DeleteConfirmation from './DeleteConfirmation';
+import DeleteConfirmation from './components/DeleteConfirmation';
 import { PresenceType, PresenceTypeState } from 'store/presence-type/types';
 import { setPresenceType, setPresenceTypes } from 'store/presence-type/actions';
+import { useStyle } from './style'
 
 interface PresenceTypeRouteProps {
   PresenceType?: PresenceTypeState
-  setPresenceType?: (type: PresenceType) => void
   setPresenceTypes?: (roles: PresenceType[]) => void
 }
 
 const PresenceTypeRoute = (props: PresenceTypeRouteProps) => {
+  const classes = useStyle()
+
+  const { setPresenceTypes } = props
+  const { presenceTypes } = props.PresenceType!
+  
   const [openFormEdit, setOpenFormEdit] = useState(false)
   const [openFormAdd, setOpenFormAdd] = useState(false)
   const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false)
 
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [totalItems, setTotalItems] = useState(0)
+
+  const [presenceType, setPresenceType] = useState<PresenceType>({
+    name: '',
+    code: '',
+    startTime: '',
+    endTime: ''
+  })
+
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API}/presence-types`)
+    const query = querystring.stringify({ page, limit })
+    fetch(`${process.env.REACT_APP_API}/presence-types?${query}`)
       .then(res => res.json())
       .then(data => {
-        props.setPresenceTypes!(data.items)
+        setPresenceTypes!(data.items)
+        setTotalItems(data.totalItems)
       })
-  }, [props.setPresenceTypes])
+  }, [page, limit])
 
   const handleFormEdit = (type: PresenceType) => {
-    props.setPresenceType!(type)
+    setPresenceType(type)
     setOpenFormEdit(true)
   }
 
   const handleDeleteConfirmation = (type: PresenceType) => {
-    props.setPresenceType!(type)
+    setPresenceType!(type)
     setOpenDeleteConfirmation(true)
-  }
-
-  const handleOnDeleteConfirmationSuccess = () => {
-    setOpenDeleteConfirmation(false)
   }
 
   return (
     <React.Fragment>
       <Paper style={{ position: 'relative' }}>
-        <IconButton onClick={() => setOpenFormAdd(true)}>
-          <AddRounded />
-        </IconButton>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>#</TableCell>
-              <TableCell>Code</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Start Time</TableCell>
-              <TableCell>End Time</TableCell>
-              <TableCell>Created Date</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {
-              props.PresenceType!.presenceTypes.map((item, index) => (
-                <TableRow key={`row-${item.id}`}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{item.code}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.startTime}</TableCell>
-                  <TableCell>{item.endTime}</TableCell>
-                  <TableCell>{Moment(item.createdAt).format('DD-MM-YYYY HH:mm')}</TableCell>
-                  <TableCell>
-                    <IconButton color='primary' onClick={() => handleFormEdit(item)}>
-                      <EditRounded />
-                    </IconButton>
-                    <IconButton color='secondary' onClick={() => handleDeleteConfirmation(item)}>
-                      <DeleteRounded />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            }
-          </TableBody>
-        </Table>
+        <div className={classes.PaperHeader}>
+          <IconButton onClick={() => setOpenFormAdd(true)}>
+            <AddIcon />
+          </IconButton>
+        </div>
+        <div className={classes.TableWrapper}>
+          <Table
+            size='small'
+            stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Start Time</TableCell>
+                <TableCell>End Time</TableCell>
+                <TableCell>Created Date</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {
+                presenceTypes.map((item, index) => (
+                  <TableRow key={`row-${item.id}`}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{item.code}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.startTime}</TableCell>
+                    <TableCell>{item.endTime}</TableCell>
+                    <TableCell>{Moment(item.createdAt).format('DD-MM-YYYY HH:mm')}</TableCell>
+                    <TableCell>
+                      <IconButton color='primary' onClick={() => handleFormEdit(item)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color='secondary' onClick={() => handleDeleteConfirmation(item)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              }
+            </TableBody>
+          </Table>
+        </div>
+        <div className={classes.PaginationWrapper}>
+          <TablePagination
+            className={classes.Pagination}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            colSpan={5}
+            count={totalItems}
+            rowsPerPage={limit}
+            page={page - 1}
+            SelectProps={{
+              inputProps: { 'aria-label': 'rows per page' },
+              native: true,
+            }}
+            onChangePage={(__, newPage) => setPage(newPage + 1)}
+            onChangeRowsPerPage={(e: any) => setLimit(e.target.value)}
+            ActionsComponent={TablePaginationActions} />
+        </div>
       </Paper>
       <FormEdit
+        data={presenceType}
         open={openFormEdit}
         onClose={() => setOpenFormEdit(false)} />
       <FormAdd
         open={openFormAdd}
         onClose={() => setOpenFormAdd(false)} />
       <DeleteConfirmation
+        data={presenceType}
         open={openDeleteConfirmation}
-        onClose={() => setOpenDeleteConfirmation(false)}
-        onSuccess={handleOnDeleteConfirmationSuccess} />
+        onClose={() => setOpenDeleteConfirmation(false)} />
     </React.Fragment>
   )
 }

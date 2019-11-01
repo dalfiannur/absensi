@@ -4,7 +4,8 @@ import { Dialog, DialogTitle, DialogContentText, DialogActions, IconButton } fro
 import { connect } from 'react-redux'
 import { AppState } from 'store'
 import { Dispatch } from 'redux'
-import { CancelRounded, CheckRounded } from '@material-ui/icons'
+import CancelIcon from '@material-ui/icons/Cancel'
+import CheckIcon from '@material-ui/icons/Check'
 import Notification from 'ui/components/Notification'
 import { green, red } from '@material-ui/core/colors'
 import { PresenceTypeState, PresenceType } from 'store/presence-type/types'
@@ -12,36 +13,37 @@ import { setPresenceTypes } from 'store/presence-type/actions'
 
 interface DeleteConfirmationProps {
   open: boolean
+  data: PresenceType
   PresenceType?: PresenceTypeState
-  setPresenceTypes: (types: PresenceType[]) => void
+  setPresenceTypes?: (types: PresenceType[]) => void
   onClose: () => void
-  onSuccess: () => void
 }
 
 const DeleteConfirmation = (props: DeleteConfirmationProps) => {
-  const state = props.PresenceType!
+  const { presenceTypes } = props.PresenceType!
+  const { data, setPresenceTypes, onClose } = props
+
   const [openNotification, setOpenNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
   const [notificationColor, setNotificationColor] = useState('')
 
   const handleDelete = () => {
-    fetch(`${process.env.REACT_APP_API}/presence-type/${state.presenceType.id}`, {
+    fetch(`${process.env.REACT_APP_API}/presence-type/${data.id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`
       }
     })
       .then(() => {
-        const types = state.presenceTypes.filter((item) => item.id !== state.presenceType.id)
-        props.setPresenceTypes(types)
-        props.onClose()
+        const types = presenceTypes.filter((item) => item.id !== data.id)
+        setPresenceTypes!(types)
+        onClose()
         setNotificationMessage('Data successfully deleted')
         setNotificationColor(green[600])
         setOpenNotification(true)
       })
       .catch(error => {
-        console.error(error)
-        props.onClose()
+        onClose()
         setNotificationMessage('Data failed to delete')
         setNotificationColor(red[600])
         setOpenNotification(true)
@@ -60,10 +62,10 @@ const DeleteConfirmation = (props: DeleteConfirmationProps) => {
         <DialogContentText>Are you sure want to delete this data?</DialogContentText>
         <DialogActions>
           <IconButton onClick={props.onClose}>
-            <CancelRounded />
+            <CancelIcon />
           </IconButton>
           <IconButton onClick={handleDelete}>
-            <CheckRounded />
+            <CheckIcon />
           </IconButton>
         </DialogActions>
       </Dialog>

@@ -4,7 +4,8 @@ import { Dialog, DialogTitle, DialogContentText, DialogActions, IconButton } fro
 import { connect } from 'react-redux'
 import { AppState } from 'store'
 import { Dispatch } from 'redux'
-import { CancelRounded, CheckRounded } from '@material-ui/icons'
+import CancelIcon from '@material-ui/icons/Cancel'
+import CheckIcon from '@material-ui/icons/Check'
 import Notification from 'ui/components/Notification'
 import { green, red } from '@material-ui/core/colors'
 import { DepartementState, Departement } from 'store/departement/types'
@@ -12,34 +13,37 @@ import { setDepartements } from 'store/departement/actions'
 
 interface DeleteConfirmationProps {
   open: boolean
+  data: Departement
   Departement?: DepartementState
   setDepartements: (types: Departement[]) => void
   onClose: () => void
 }
 
 const DeleteConfirmation = (props: DeleteConfirmationProps) => {
-  const state = props.Departement!
+  const { departements } = props.Departement!
+  const { data, open, onClose, setDepartements } = props
+
   const [openNotification, setOpenNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
   const [notificationColor, setNotificationColor] = useState('')
 
   const handleDelete = () => {
-    fetch(`${process.env.REACT_APP_API}/departement/${state.departement.id}`, {
+    fetch(`${process.env.REACT_APP_API}/departement/${data.id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`
       }
     })
       .then(() => {
-        const departements = state.departements.filter((item) => item.id !== state.departement.id)
-        props.setDepartements(departements)
-        props.onClose()
+        const result = departements.filter((item) => item.id !== data.id)
+        setDepartements(result)
+        onClose()
         setNotificationMessage('Data successfully deleted')
         setNotificationColor(green[600])
         setOpenNotification(true)
       })
       .catch(error => {
-        props.onClose()
+        onClose()
         setNotificationMessage('Data failed to delete')
         setNotificationColor(red[600])
         setOpenNotification(true)
@@ -49,19 +53,18 @@ const DeleteConfirmation = (props: DeleteConfirmationProps) => {
   return (
     <React.Fragment>
       <Dialog
-        open={props.open}
-        onClose={props.onClose}
+        open={open}
+        onClose={onClose}
         fullWidth
-        maxWidth='xs'
-      >
+        maxWidth='xs'>
         <DialogTitle>Delete Confirmation</DialogTitle>
         <DialogContentText>Are you sure want to delete this data?</DialogContentText>
         <DialogActions>
           <IconButton onClick={props.onClose}>
-            <CancelRounded />
+            <CancelIcon />
           </IconButton>
           <IconButton onClick={handleDelete}>
-            <CheckRounded />
+            <CheckIcon />
           </IconButton>
         </DialogActions>
       </Dialog>
@@ -78,7 +81,7 @@ const mapStateToProps = (state: AppState) => ({
   Departement: state.Departement
 })
 const mapActionToProps = (dispatch: Dispatch) => ({
-  setDepartements: (types: Departement[]) => dispatch(setDepartements(types))
+  setDepartements: (departements: Departement[]) => dispatch(setDepartements(departements))
 })
 
 export default connect(mapStateToProps, mapActionToProps)(DeleteConfirmation)

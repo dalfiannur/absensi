@@ -4,7 +4,8 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButto
 import { connect } from 'react-redux'
 import { AppState } from 'store'
 import { Dispatch } from 'redux'
-import { SaveRounded, CancelRounded } from '@material-ui/icons'
+import SaveIcon from '@material-ui/icons/Save'
+import CancelIcon from '@material-ui/icons/Cancel'
 import Notification from 'ui/components/Notification'
 import { green, red } from '@material-ui/core/colors'
 import { PresenceTypeState, PresenceType } from 'store/presence-type/types'
@@ -22,7 +23,7 @@ interface FormEditProps {
 
 const FormEdit = (props: FormEditProps) => {
   const classes = useStyle()
-  const { presenceTypes, presenceType } = props.PresenceType!
+  const { presenceTypes } = props.PresenceType!
 
   const [openNotification, setOpenNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
@@ -99,10 +100,10 @@ const FormEdit = (props: FormEditProps) => {
         </DialogContent>
         <DialogActions>
           <IconButton onClick={props.onClose}>
-            <CancelRounded />
+            <CancelIcon />
           </IconButton>
           <IconButton onClick={() => handleSave()}>
-            <SaveRounded />
+            <SaveIcon />
           </IconButton>
         </DialogActions>
       </Dialog>

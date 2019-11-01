@@ -16,16 +16,12 @@ import {
   Typography
 } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
-import {
-  Menu as MenuIcon,
-  ChevronRight as ChevronRightIcon,
-  ChevronLeft as ChevronLeftIcon,
-  Inbox as InboxIcon,
-  Mail as MailIcon,
-  People as PeopleIcon,
-  Accessibility as AccessibilityIcon,
-  Home as HomeIcon
-} from '@material-ui/icons'
+import MenuIcon from '@material-ui/icons/Menu'
+import ChevronRightIcon from '@material-ui/icons/ChevronRight'
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
+import PeopleIcon from '@material-ui/icons/People'
+import AccessibilityIcon from '@material-ui/icons/Accessibility'
+import HomeIcon from '@material-ui/icons/Home'
 import { styles } from './styles';
 import history from 'utils/history'
 
@@ -70,7 +66,7 @@ const Dashboard: React.SFC<DashboardProps> = (props) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Mini variant drawer
+            ABSENSI PESERTA MTGA
           </Typography>
         </Toolbar>
       </AppBar>
@@ -131,15 +127,6 @@ const Dashboard: React.SFC<DashboardProps> = (props) => {
             </ListItemIcon>
             <ListItemText primary={'User Roles'} />
           </ListItem>
-        </List>
-        <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
         </List>
       </Drawer>
       <main className={classes.content}>
