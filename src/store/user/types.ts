@@ -1,5 +1,6 @@
 import { UserRole } from "store/user-role/types";
 import { Departement } from "store/departement/types";
+import { Presence } from "store/presence/types";
 
 export const SET_USER = 'SET_USER'
 export const SET_USERS = 'SET_USERS'
@@ -14,6 +15,7 @@ export interface User {
   improvement?: string
   role?: UserRole
   departement?: Departement
+  presences?: Presence[]
   picture?: string
   createdAt?: Date
   updatedAt?: Date
