@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 import moment from 'moment'
 import history from 'utils/history'
 import { useState } from 'react';
-import { TextField } from '@material-ui/core';
+import { TextField, Grid } from '@material-ui/core';
 import { User } from 'store/user/types';
 import { PresenceType } from 'store/presence-type/types';
 import { AppState } from 'store';
@@ -21,7 +21,10 @@ import UserDetailDialog from './components/UserDetailDialog'
 import Background from './components/Background'
 import PresenceCountSide from './components/PresenceCount'
 import UserNotFoundDialog from './components/UserNotFoundDialog'
-import DateTimeSide from './components/DateTimeSide';
+import DateTimeSide from './components/DateTimeSide'
+import BackgroundImage from '../../../assets/background-login.jpg'
+import Card from '@material-ui/core/Card'
+
 
 const PresenceRoute = (props: PresenceProps) => {
   const classes = useStyles();
@@ -118,15 +121,19 @@ const PresenceRoute = (props: PresenceProps) => {
   }
 
   return (
+    
     <React.Fragment>
-      <Background />
+      
+    <Background />
+    <div className={classes.Container}>
       <DateTimeSide />
       <PresenceCountSide data={presenceCount} />
       <button
         className={classes.ButtonLogin}
         onClick={() => history.push('/login')}>Login</button>
+      <Card className={classes.cardStyle}>
       <img className={classes.Logo} src={Logo} alt='Logo' />
-      <h1 className={classes.Title}>ABSENSI PESERTA MTGA</h1>
+      <h3 className={classes.Title}>Barcode Attendance System</h3>
       <TextField
         autoFocus
         value={NIK}
@@ -134,6 +141,9 @@ const PresenceRoute = (props: PresenceProps) => {
         onChange={e => setNIK(e.target.value)}
         onKeyDown={e => handleTextField(e)}
       />
+      
+      </Card>
+      </div>      
 
       <UserDetailDialog
         open={open}
@@ -148,9 +158,12 @@ const PresenceRoute = (props: PresenceProps) => {
       <UserHasAttendedDialog
         open={openUserHasAttendedDialog}
         onClose={() => setOpenUserHasAttendedDialog(false)} />
+        
     </React.Fragment>
+ 
   )
 }
+
 
 const mapStateToProps = (state: AppState) => ({
   PresenceType: state.PresenceType

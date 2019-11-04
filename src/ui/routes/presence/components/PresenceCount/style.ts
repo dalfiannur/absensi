@@ -4,13 +4,14 @@ export const useStyle = makeStyles(theme => ({
   Container: {
     position: 'absolute',
     left: 0,
-    top: 10,
+    top: 100,
     width: 'auto',
     padding: 15,
     borderRadius: '0px 10px 10px 0px',
     border: 0,
-    background: 'linear-gradient(180deg, #134e5e, #71b280)',
-    color: '#fff'
+    background: '#ffffff',
+    color: '#00000',
+    opacity: 0.9
   },
   Label: {
 
