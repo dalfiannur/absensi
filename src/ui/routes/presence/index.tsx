@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 import moment from 'moment'
 import history from 'utils/history'
 import { useState } from 'react';
-import { TextField, Grid } from '@material-ui/core';
+import { TextField } from '@material-ui/core';
 import { User } from 'store/user/types';
 import { PresenceType } from 'store/presence-type/types';
 import { AppState } from 'store';
@@ -22,14 +22,13 @@ import Background from './components/Background'
 import PresenceCountSide from './components/PresenceCount'
 import UserNotFoundDialog from './components/UserNotFoundDialog'
 import DateTimeSide from './components/DateTimeSide'
-import BackgroundImage from '../../../assets/background-login.jpg'
 import Card from '@material-ui/core/Card'
 
 
 const PresenceRoute = (props: PresenceProps) => {
   const classes = useStyles();
 
-  const { presenceType, presenceTypes } = props.PresenceType
+  const { presenceTypes } = props.PresenceType
   const { setPresenceTypes } = props
 
   const [open, setOpen] = useState(false)
@@ -57,15 +56,16 @@ const PresenceRoute = (props: PresenceProps) => {
     setPresenceCount(items)
   }
 
-  React.useEffect(() => {
+  React.useMemo(async () => {
     if (presenceTypes.length === 0) {
-      API.fetchPresenceType()
-        .then(data => {
+      return API.fetchPresenceType()
+        .then(async data => {
           setPresenceTypes(data)
           generatePresenceCount(data)
+          return data
         })
     }
-  }, [setPresenceTypes])
+  }, [presenceTypes])
 
   const findTypeId = () => {
     const date = moment(new Date())
@@ -73,6 +73,7 @@ const PresenceRoute = (props: PresenceProps) => {
       const start = moment(item.startTime, 'HH:mm')
       const end = moment(item.endTime, 'HH:mm')
       if (start.isSameOrBefore(date) && end.isAfter(date)) return item
+      return null
     })
     return type[0] ? _.toInteger(type[0].id) : null
   }
@@ -121,29 +122,29 @@ const PresenceRoute = (props: PresenceProps) => {
   }
 
   return (
-    
+
     <React.Fragment>
-      
-    <Background />
-    <div className={classes.Container}>
-      <DateTimeSide />
-      <PresenceCountSide data={presenceCount} />
-      <button
-        className={classes.ButtonLogin}
-        onClick={() => history.push('/login')}>Login</button>
-      <Card className={classes.cardStyle}>
-      <img className={classes.Logo} src={Logo} alt='Logo' />
-      <h3 className={classes.Title}>Barcode Attendance System</h3>
-      <TextField
-        autoFocus
-        value={NIK}
-        className={classes.TextField}
-        onChange={e => setNIK(e.target.value)}
-        onKeyDown={e => handleTextField(e)}
-      />
-      
-      </Card>
-      </div>      
+
+      <Background />
+      <div className={classes.Container}>
+        <DateTimeSide />
+        <PresenceCountSide data={presenceCount} />
+        <button
+          className={classes.ButtonLogin}
+          onClick={() => history.push('/login')}>Login</button>
+        <Card className={classes.cardStyle}>
+          <img className={classes.Logo} src={Logo} alt='Logo' />
+          <h3 className={classes.Title}>Barcode Attendance System</h3>
+          <TextField
+            autoFocus
+            value={NIK}
+            className={classes.TextField}
+            onChange={e => setNIK(e.target.value)}
+            onKeyDown={e => handleTextField(e)}
+          />
+
+        </Card>
+      </div>
 
       <UserDetailDialog
         open={open}
@@ -158,9 +159,9 @@ const PresenceRoute = (props: PresenceProps) => {
       <UserHasAttendedDialog
         open={openUserHasAttendedDialog}
         onClose={() => setOpenUserHasAttendedDialog(false)} />
-        
+
     </React.Fragment>
- 
+
   )
 }
 

@@ -10,7 +10,8 @@ export const useStyle = makeStyles(theme => ({
     maxHeight: 450
   },
   PaginationWrapper: {
-    width: '100%'
+    flexShrink: 0,
+    marginLeft: theme.spacing(2.5)
   },
   Pagination: {
     display: 'block'

@@ -1,9 +1,7 @@
 import * as React from 'react';
+import Moment from 'moment'
 import querystring from 'querystring'
 import { useState } from 'react'
-import moment from 'moment'
-import { Dispatch } from 'redux';
-import { connect } from 'react-redux';
 import {
   Paper,
   Table,
@@ -17,28 +15,20 @@ import {
   FormGroup,
   FormControlLabel,
   Zoom,
-  Chip
+  Chip,
+  TableFooter
 } from '@material-ui/core';
-import { AppState } from 'store';
-import { PresenceState, Presence } from 'store/presence/types';
-import { setPresences } from 'store/presence/actions';
 import FilterListIcon from '@material-ui/icons/FilterList'
 import FilterDialog from './components/FilterDialog'
 import { useStyle } from './style'
 import TablePaginationActions from 'ui/components/TablePaginationActions'
-import { User, UserState } from 'store/user/types';
-import { setUsers } from 'store/user/actions'
+import { User } from 'store/user/types';
 
 interface PresenceRouteProps {
-  User: UserState
-  setUsers: (users: User[]) => void
 }
 
 const PresenceRoute = (props: PresenceRouteProps) => {
   const classes = useStyle()
-
-  const { setUsers } = props
-  const { users } = props.User
 
   const [openFilterDialog, setOpenFilterDialog] = useState(false)
 
@@ -47,8 +37,10 @@ const PresenceRoute = (props: PresenceRouteProps) => {
   const [totalItems, setTotalItems] = useState(0)
   const [attended, setAttended] = useState(true)
 
+  const [users, setUsers] = useState<User[]>([])
+
   const [filterValues, setFilterValues] = useState({
-    date: '',
+    date: Moment(new Date()).format('DDMMYYYY'),
     typeId: 0
   })
 
@@ -114,7 +106,7 @@ const PresenceRoute = (props: PresenceRouteProps) => {
                       <TableCell>
                         {
                           user.presences!.map((presence: any) => (
-                            <Chip color='primary' size='small' key={`${presence.name}-${user.nik}`} label={presence.type.name} />
+                            <Chip color='primary' size='small' key={`${presence.id}-${user.nik}`} label={presence.type.name} />
                           ))
                         }
                       </TableCell>
@@ -123,23 +115,24 @@ const PresenceRoute = (props: PresenceRouteProps) => {
                 ))
               }
             </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25, 50]}
+                  colSpan={5}
+                  count={totalItems}
+                  rowsPerPage={limit}
+                  page={page - 1}
+                  SelectProps={{
+                    inputProps: { 'aria-label': 'rows per page' },
+                    native: true,
+                  }}
+                  onChangePage={(__, newPage) => setPage(newPage + 1)}
+                  onChangeRowsPerPage={(e: any) => setLimit(e.target.value)}
+                  ActionsComponent={TablePaginationActions} />
+              </TableRow>
+            </TableFooter>
           </Table>
-        </div>
-        <div className={classes.PaginationWrapper}>
-          <TablePagination
-            className={classes.Pagination}
-            rowsPerPageOptions={[5, 10, 25, 50]}
-            colSpan={5}
-            count={totalItems}
-            rowsPerPage={limit}
-            page={page - 1}
-            SelectProps={{
-              inputProps: { 'aria-label': 'rows per page' },
-              native: true,
-            }}
-            onChangePage={(__, newPage) => setPage(newPage + 1)}
-            onChangeRowsPerPage={(e: any) => setLimit(e.target.value)}
-            ActionsComponent={TablePaginationActions} />
         </div>
       </Paper>
       <FilterDialog
@@ -151,11 +144,4 @@ const PresenceRoute = (props: PresenceRouteProps) => {
   )
 }
 
-const mapState = (state: AppState) => ({
-  User: state.User
-})
-const mapDispatch = (dispatch: Dispatch) => ({
-  setUsers: (users: User[]) => dispatch(setUsers(users))
-})
-
-export default connect(mapState, mapDispatch)(PresenceRoute);
+export default PresenceRoute

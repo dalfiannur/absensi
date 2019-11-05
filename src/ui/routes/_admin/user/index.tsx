@@ -11,7 +11,8 @@ import {
   TableCell,
   TableBody,
   IconButton,
-  TablePagination
+  TablePagination,
+  TableFooter
 } from '@material-ui/core';
 import TablePaginationActions from 'ui/components/TablePaginationActions'
 import AddIcon from '@material-ui/icons/Add'
@@ -108,7 +109,7 @@ const UserRoute = (props: UserRouteProps) => {
             <TableBody>
               {
                 props.User.users.map((user, index) => (
-                  <TableRow>
+                  <TableRow key={user.nik}>
                     <TableCell>
                       {index + 1}
                     </TableCell>
@@ -139,23 +140,27 @@ const UserRoute = (props: UserRouteProps) => {
                 ))
               }
             </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25, 50]}
+                  colSpan={7}
+                  count={totalItems}
+                  rowsPerPage={limit}
+                  page={page - 1}
+                  SelectProps={{
+                    inputProps: { 'aria-label': 'rows per page' },
+                    native: true,
+                  }}
+                  onChangePage={(__, newPage) => setPage(newPage + 1)}
+                  onChangeRowsPerPage={(e: any) => setLimit(e.target.value)}
+                  ActionsComponent={TablePaginationActions} />
+              </TableRow>
+            </TableFooter>
           </Table>
         </div>
-        <div className={classes.PaginationWrapper}>
-          <TablePagination
-            className={classes.Pagination}
-            rowsPerPageOptions={[5, 10, 25, 50]}
-            colSpan={5}
-            count={totalItems}
-            rowsPerPage={limit}
-            page={page - 1}
-            SelectProps={{
-              inputProps: { 'aria-label': 'rows per page' },
-              native: true,
-            }}
-            onChangePage={(__, newPage) => setPage(newPage + 1)}
-            onChangeRowsPerPage={(e: any) => setLimit(e.target.value)}
-            ActionsComponent={TablePaginationActions} />
+        <div >
+
         </div>
       </Paper>
       <PrintDialog data={user} open={openPrintDialog} onClose={() => setOpenPrintDialog(false)} />
