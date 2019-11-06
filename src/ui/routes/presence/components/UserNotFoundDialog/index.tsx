@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Dialog, DialogTitle, DialogContentText } from '@material-ui/core'
+import { useStyle } from './style'
 
 interface UserNotFoundDialogProps {
   open: boolean
@@ -7,6 +8,8 @@ interface UserNotFoundDialogProps {
 }
 
 export default (props: UserNotFoundDialogProps) => {
+  const classes = useStyle()
+  
   return (
     <Dialog
       open={props.open}

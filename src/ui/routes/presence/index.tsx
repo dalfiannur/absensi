@@ -18,11 +18,12 @@ import Logo from '../../../logo.png'
 import NoEventDialog from './components/NoEventDialog'
 import UserHasAttendedDialog from './components/UserHasAttendedDialog'
 import UserDetailDialog from './components/UserDetailDialog'
-import Background from './components/Background'
+// import Background from './components/Background'
 import PresenceCountSide from './components/PresenceCount'
 import UserNotFoundDialog from './components/UserNotFoundDialog'
 import DateTimeSide from './components/DateTimeSide'
 import Card from '@material-ui/core/Card'
+import BackgroundSlider from './components/BackgroundSlider';
 
 
 const PresenceRoute = (props: PresenceProps) => {
@@ -105,7 +106,7 @@ const PresenceRoute = (props: PresenceProps) => {
                   setOpenUserHasAttendedDialog(true)
                   setTimeout(() => {
                     setOpenUserHasAttendedDialog(false)
-                  }, 4000)
+                  }, 50000)
                 }
               })
           })
@@ -115,7 +116,7 @@ const PresenceRoute = (props: PresenceProps) => {
               Promise.resolve(setNIK('')).then(() => {
                 setOpenUserNotFound(false);
               });
-            }, 4000);
+            }, 50000);
           })
       }
     }
@@ -125,16 +126,16 @@ const PresenceRoute = (props: PresenceProps) => {
 
     <React.Fragment>
 
-      <Background />
+      <BackgroundSlider />
       <div className={classes.Container}>
         <DateTimeSide />
         <PresenceCountSide data={presenceCount} />
-        <button
+        {/* <button
           className={classes.ButtonLogin}
-          onClick={() => history.push('/login')}>Login</button>
+          onClick={() => history.push('/login')}>Login</button> */}
         <Card className={classes.cardStyle}>
-          <img className={classes.Logo} src={Logo} alt='Logo' />
-          <h3 className={classes.Title}>Barcode Attendance System</h3>
+          {/* <img className={classes.Logo} src={Logo} alt='Logo' /> */}
+          {/* <h3 className={classes.Title}>Barcode Attendance System</h3> */}
           <TextField
             autoFocus
             value={NIK}

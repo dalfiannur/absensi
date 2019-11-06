@@ -1,8 +1,10 @@
 import * as React from 'react'
-import { Dialog, DialogContent, Grid, TextField } from '@material-ui/core'
+import { Dialog, DialogContent, Grid, TextField} from '@material-ui/core'
 import { useStyle } from './style'
 import { User } from 'store/user/types'
 import UserImage from 'assets/user.jpg'
+import Flag from 'assets/jepang.png'
+// import { PictureFlag } from './style'
 
 interface UserDetailDialogProps {
   open: boolean
@@ -18,13 +20,13 @@ export default (props: UserDetailDialogProps) => {
 
   return (
     <Dialog
-      fullWidth
+      // fullWidth
       keepMounted
       open={props.open}
       onClose={props.onClose}
       maxWidth='md'
     >
-      <DialogContent>
+      <DialogContent className={classes.Dialog}>
         <h3 className={classes.Title}>WELCOME TO MTGA</h3>
         <Grid container spacing={2}>
           <Grid item md={5}>
@@ -34,24 +36,32 @@ export default (props: UserDetailDialogProps) => {
               className={classes.ProfilePicture} />
           </Grid>
           <Grid item md={7}>
+          <img
+              src={Flag}
+              alt='User Profile'
+              className={classes.PictureFlag} />
+              <br></br>
             <TextField
               label='NIK'
               margin='dense'
               variant='outlined'
               value={user.nik}
               InputProps={inputReadonly} />
+              <br></br>
             <TextField
               label='Nama'
               margin='dense'
               variant='outlined'
               value={user.name}
               InputProps={inputReadonly} />
+              <br></br>
             <TextField
               label='Departemen'
               margin='dense'
               variant='outlined'
               InputProps={inputReadonly}
               value={user.departement ? user.departement.name : ''} />
+              <br></br>
             <TextField
               label='Jumlah Improvement'
               margin='dense'

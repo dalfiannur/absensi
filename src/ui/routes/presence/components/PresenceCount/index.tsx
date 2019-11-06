@@ -13,6 +13,7 @@ export default (props: PresenceCountProps) => {
   return (
     <div className={classes.Container}>
       <table>
+        <h3>Presence Count</h3>
         <tbody>
           {
             data.map((item, index) => (

@@ -6,7 +6,7 @@ export const useStyles = makeStyles(theme => ({
     position: 'absolute',
     left: '30%',
     right: '30%',
-    top: '60%',
+    top: '40%',
     bottom: '45%'
   },
   Container:{
@@ -18,7 +18,6 @@ export const useStyles = makeStyles(theme => ({
   },
   Title: {
     position: 'absolute',
-    top: 100,
     left: '25%',
     right: '25%',
     textAlign: 'center'
@@ -53,13 +52,13 @@ export const useStyles = makeStyles(theme => ({
     // marginLeft : 380
     position: 'relative',
     width: '500px',
-    height: '300px',
-    top: 'calc(50% - 175px)',
+    height: '90px',
+    top: 'calc(70% - 3px)',
     left: 'calc(50% - 250px)',
     borderRadius: '2px',
     overflow: 'hidden',
     boxShadow: '#000000',
-    opacity: 0.8,
+    opacity: 0.5,
     // marginTop: 150
   },
   RightSection: {
