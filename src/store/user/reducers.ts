@@ -5,7 +5,8 @@ const initialState: UserState = {
     nik: '',
     username: '',
     name: '',
-    improvement: ''
+    improvement: '',
+    country: ''
   },
   users: []
 }
@@ -23,7 +24,7 @@ export const userReducer = (state = initialState, action: UserTypes) => {
         ...state,
         users: action.payload
       }
-    
+
     default:
       return state
   }

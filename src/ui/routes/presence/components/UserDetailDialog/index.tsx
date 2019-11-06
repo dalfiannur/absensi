@@ -1,9 +1,8 @@
 import * as React from 'react'
-import { Dialog, DialogContent, Grid, TextField} from '@material-ui/core'
+import { Dialog, DialogContent, Grid, TextField } from '@material-ui/core'
 import { useStyle } from './style'
 import { User } from 'store/user/types'
 import UserImage from 'assets/user.jpg'
-import Flag from 'assets/jepang.png'
 // import { PictureFlag } from './style'
 
 interface UserDetailDialogProps {
@@ -36,32 +35,32 @@ export default (props: UserDetailDialogProps) => {
               className={classes.ProfilePicture} />
           </Grid>
           <Grid item md={7}>
-          <img
-              src={Flag}
+            <img
+              src={`${process.env.PUBLIC_URL}/flags/${user.country}.png`}
               alt='User Profile'
               className={classes.PictureFlag} />
-              <br></br>
+            <br></br>
             <TextField
               label='NIK'
               margin='dense'
               variant='outlined'
               value={user.nik}
               InputProps={inputReadonly} />
-              <br></br>
+            <br></br>
             <TextField
               label='Nama'
               margin='dense'
               variant='outlined'
               value={user.name}
               InputProps={inputReadonly} />
-              <br></br>
+            <br></br>
             <TextField
               label='Departemen'
               margin='dense'
               variant='outlined'
               InputProps={inputReadonly}
               value={user.departement ? user.departement.name : ''} />
-              <br></br>
+            <br></br>
             <TextField
               label='Jumlah Improvement'
               margin='dense'

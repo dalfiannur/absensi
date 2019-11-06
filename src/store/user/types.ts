@@ -13,6 +13,7 @@ export interface User {
   username: string
   password?: string
   improvement?: string
+  country?: string
   role?: UserRole
   departement?: Departement
   presences?: Presence[]
