@@ -94,7 +94,7 @@ export default () => {
   
   return (
     <div className={classNames('slider', { 's--ready': sliderReady })}>
-      {/* <img className="Logo" src={Logo} alt='Logo' /> */}
+      <img className="Logo" src={Logo} alt='Logo' />
       <p className="slider__top-heading">Barcode Attendance System</p>
       <div className="slider__slides">
         {slides.map((slide, index) => (

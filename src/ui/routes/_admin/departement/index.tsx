@@ -159,3 +159,4 @@ const mapActionToProps = (dispatch: Dispatch) => ({
   setDepartements: (departements: Departement[]) => dispatch(setDepartements(departements))
 })
 export default connect(mapStateToProps, mapActionToProps)(DepartementRoute);
+

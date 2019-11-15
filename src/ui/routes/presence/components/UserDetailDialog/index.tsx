@@ -30,7 +30,7 @@ export default (props: UserDetailDialogProps) => {
         <Grid container spacing={2}>
           <Grid item md={5}>
             <img
-              src={UserImage}
+              src={`${process.env.REACT_APP_API}/avatars/${user.picture}`}
               alt='User Profile'
               className={classes.ProfilePicture} />
           </Grid>
@@ -61,12 +61,12 @@ export default (props: UserDetailDialogProps) => {
               InputProps={inputReadonly}
               value={user.departement ? user.departement.name : ''} />
             <br></br>
-            <TextField
+            {/* <TextField
               label='Jumlah Improvement'
               margin='dense'
               variant='outlined'
               InputProps={inputReadonly}
-              value={user.improvement ? user.improvement : ''} />
+              value={user.improvement ? user.improvement : ''} /> */}
           </Grid>
         </Grid>
       </DialogContent>
