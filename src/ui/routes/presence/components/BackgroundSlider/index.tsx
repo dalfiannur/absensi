@@ -119,7 +119,7 @@ export default () => {
           </div>
         ))}
       </div>
-      <div className="slider__control" onClick={() => changeSlides(-1)} />
+      {/* <div className="slider__control" onClick={() => changeSlides(-1)} /> */}
       {/* <div className="slider__control slider__control--right" onClick={() => changeSlides(1)} /> */}
     </div>
   )
