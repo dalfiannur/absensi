@@ -62,12 +62,12 @@ export default (props: UserDetailDialogProps) => {
               InputProps={inputReadonly}
               value={user.departement ? user.departement.name : ''} />
             <br></br>
-            <TextField
+            {/* <TextField
               label='Jumlah Improvement'
               margin='dense'
               variant='outlined'
               InputProps={inputReadonly}
-              value={user.improvement ? user.improvement : ''} />
+              value={user.improvement ? user.improvement : ''} /> */}
           </Grid>
         </Grid>
       </DialogContent>
