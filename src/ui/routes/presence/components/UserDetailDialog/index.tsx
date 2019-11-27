@@ -3,6 +3,7 @@ import { Dialog, DialogContent, Grid, TextField } from '@material-ui/core'
 import { useStyle } from './style'
 import { User } from 'store/user/types'
 import UserImage from 'assets/user.jpg'
+import _ from 'lodash'
 // import { PictureFlag } from './style'
 
 interface UserDetailDialogProps {
@@ -30,13 +31,13 @@ export default (props: UserDetailDialogProps) => {
         <Grid container spacing={2}>
           <Grid item md={5}>
             <img
-              src={UserImage}
-              alt='User Profile'
+              src={`${process.env.REACT_APP_API}/avatars/${user.picture}`}
+              alt={user.name}
               className={classes.ProfilePicture} />
           </Grid>
           <Grid item md={7}>
             <img
-              src={`${process.env.PUBLIC_URL}/flags/${user.country}.png`}
+              src={`${process.env.PUBLIC_URL}/flags/${_.toLower(user.country)}.png`}
               alt='User Profile'
               className={classes.PictureFlag} />
             <br></br>
