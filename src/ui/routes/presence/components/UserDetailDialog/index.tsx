@@ -2,8 +2,8 @@ import * as React from 'react'
 import { Dialog, DialogContent, Grid, TextField } from '@material-ui/core'
 import { useStyle } from './style'
 import { User } from 'store/user/types'
-import UserImage from 'assets/user.jpg'
-import {Image, Video, Transformation, CloudinaryContext} from 'cloudinary-react';
+import {Image, Transformation } from 'cloudinary-react';
+import _ from 'lodash'
 // import { PictureFlag } from './style'
 
 interface UserDetailDialogProps {
@@ -40,7 +40,7 @@ export default (props: UserDetailDialogProps) => {
           </Grid>
           <Grid item md={7}>
             <img
-              src={`${process.env.PUBLIC_URL}/flags/${user.country}.png`}
+              src={`${process.env.PUBLIC_URL}/flags/${_.toLower(user.country)}.png`}
               alt='User Profile'
               className={classes.PictureFlag} />
             <br></br>
