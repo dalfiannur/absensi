@@ -101,7 +101,7 @@ const PresenceRoute = (props: PresenceProps) => {
                   setTimeout(() => {
                     setNIK('')
                     setOpen(false)
-                  }, 4000)
+                  }, 10000)
                 } else {
                   setOpenUserHasAttendedDialog(true)
                   setTimeout(() => {

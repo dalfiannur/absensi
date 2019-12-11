@@ -3,6 +3,7 @@ import { Dialog, DialogContent, Grid, TextField } from '@material-ui/core'
 import { useStyle } from './style'
 import { User } from 'store/user/types'
 import UserImage from 'assets/user.jpg'
+import {Image, Video, Transformation, CloudinaryContext} from 'cloudinary-react';
 // import { PictureFlag } from './style'
 
 interface UserDetailDialogProps {
@@ -29,10 +30,13 @@ export default (props: UserDetailDialogProps) => {
         <h3 className={classes.Title}>WELCOME TO MTGA</h3>
         <Grid container spacing={2}>
           <Grid item md={5}>
-            <img
+            {/* <img
               src={`${process.env.REACT_APP_API}/avatars/${user.picture}`}
               alt='User Profile'
-              className={classes.ProfilePicture} />
+              className={classes.ProfilePicture} /> */}
+            <Image cloudName='dalfiannur' publicId={String(user.picture).replace('.jpg', '')} className={classes.ProfilePicture}>
+              <Transformation width="400" height="400" gravity="face" crop="fill" />
+            </Image>
           </Grid>
           <Grid item md={7}>
             <img
@@ -41,6 +45,7 @@ export default (props: UserDetailDialogProps) => {
               className={classes.PictureFlag} />
             <br></br>
             <TextField
+              className={classes.txtFld}
               label='NIK'
               margin='dense'
               variant='outlined'
@@ -48,6 +53,7 @@ export default (props: UserDetailDialogProps) => {
               InputProps={inputReadonly} />
             <br></br>
             <TextField
+              className={classes.txtFld}
               label='Nama'
               margin='dense'
               variant='outlined'
@@ -55,6 +61,7 @@ export default (props: UserDetailDialogProps) => {
               InputProps={inputReadonly} />
             <br></br>
             <TextField
+              className={classes.txtFld}
               label='Departemen'
               margin='dense'
               variant='outlined'

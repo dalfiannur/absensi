@@ -8,7 +8,7 @@ export default () => {
 
   React.useEffect(() => {
     setInterval(() => {
-      setDate(Moment().utcOffset(0).format('DD-MM-YYYY HH:mm:ss'))
+      setDate(Moment().format('DD-MM-YYYY HH:mm:ss'))
     }, 1000)
   }, [setDate])
 

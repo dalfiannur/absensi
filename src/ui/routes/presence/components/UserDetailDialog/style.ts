@@ -8,15 +8,18 @@ export const useStyle = makeStyles(theme => ({
     color: '#000000'
   },
   ProfilePicture: {
-    height: 320,
-    width: 230
+    width: '100%',
+    height: 'auto'
   },
   Dialog: {
     width: 650,
     background: Latar
   },
   PictureFlag:{
-    width:80,
-    height:80
+    width:130,
+    height:130
+  },
+  txtFld:{
+    width: 300
   }
 }))
